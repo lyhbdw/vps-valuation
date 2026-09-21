@@ -4,10 +4,6 @@
 
 适合在 NodeSeek 等服务器交易、续费和转让场景中快速做判断。
 
-![demo](./demo1.webp)
-
-![demo](./demo2.webp)
-
 > 本项目与 NodeSeek 没有官方关联；NodeSeek 仅作为常见的 VPS 交易使用场景举例。
 
 ## ✨ 特性
