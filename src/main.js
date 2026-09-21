@@ -8,8 +8,23 @@ if (typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent)) {
 const API_URL = 'https://open.er-api.com/v6/latest/CNY';
 // 汇率本地缓存时长（小时）。免费 API 一般每天更新一次，12h 足够。
 const RATE_CACHE_HOURS = 12;
-// 用户手动刷新汇率次数上限（每 RATE_CACHE_HOURS 内）。防止误触刷爆免费 API 配额。
-const MANUAL_REFRESH_LIMIT = 2;
+// 用户表单本地保存时长（小时）。表单数据属长任务型输入，保存窗口需远大于
+// 单次会话；过短会让用户填写的内容静默丢失。
+const INPUT_CACHE_HOURS = 12;
+// 用户手动刷新汇率次数上限。窗口与缓存时长解耦：6h 内最多 3 次，
+// 既避免误触刷爆免费 API 配额，也不会让用户等太久。
+const RATE_LIMIT_WINDOW_HOURS = 6;
+const MANUAL_REFRESH_LIMIT = 3;
+// 付款周期文案映射。复制 Markdown 时按 radio.value 查表取值，
+// 不依赖 DOM 层级/innerText（HTML 结构调整不会让复制文本变空）。
+const CYCLE_LABELS = {
+    '30': '月付',
+    '90': '季付',
+    '180': '半年',
+    '365': '年付',
+    '730': '两年',
+    '1095': '三年'
+};
 const SHARE_IMAGE_MIME_TYPE = 'image/webp';
 const SHARE_IMAGE_QUALITY = 0.98;
 // 导出图片的最低像素比与目标物理宽度。手机端 CSS 宽度通常仅 ~360px，
@@ -57,6 +72,8 @@ const els = {
 };
 
 let rateLimitTimer = null;
+let toastTimer = null;
+let symbolPaddingRaf = 0;
 let remainingValueCNY = 0;
 let quoteLastEdited = 'premium';
 
@@ -137,20 +154,25 @@ function setupEventListeners() {
 
     // Firefox：date input 改为 visibility:hidden，不接收点击 → 在 wrapper 上绑定点击来触发 showPicker()
     // 非 Firefox：原生透明日历指示器在 webkit 上会自己响应点击，同时下面的 icon handler 作为后备
+    const openDatePicker = (input, preventDefault) => {
+        if (!input) return;
+        if (preventDefault) preventDefault.preventDefault();
+        try {
+            if (typeof input.showPicker === 'function') {
+                input.showPicker();
+            } else {
+                input.focus();
+            }
+        } catch (err) {
+            // showPicker 在部分浏览器/场景会抛错，退回复焦行为
+            input.focus();
+        }
+    };
+
     if (document.documentElement.classList.contains('is-firefox')) {
         document.querySelectorAll('.date-input-wrapper').forEach((wrapper) => {
             wrapper.addEventListener('click', () => {
-                const input = wrapper.querySelector('input[type="date"]');
-                if (!input) return;
-                try {
-                    if (typeof input.showPicker === 'function') {
-                        input.showPicker();
-                    } else {
-                        input.focus();
-                    }
-                } catch (err) {
-                    // ignore
-                }
+                openDatePicker(wrapper.querySelector('input[type="date"]'), null);
             });
         });
     } else {
@@ -158,17 +180,7 @@ function setupEventListeners() {
         document.querySelectorAll('.date-input-wrapper .date-input-icon').forEach((icon) => {
             icon.addEventListener('click', (e) => {
                 const input = icon.parentElement && icon.parentElement.querySelector('input[type="date"]');
-                if (!input) return;
-                e.preventDefault();
-                try {
-                    if (typeof input.showPicker === 'function') {
-                        input.showPicker();
-                    } else {
-                        input.focus();
-                    }
-                } catch (err) {
-                    input.focus();
-                }
+                openDatePicker(input, e);
             });
         });
     }
@@ -391,35 +403,41 @@ function syncDateDisplay(input) {
     display.textContent = formatDateForDisplay(input.value);
 }
 
-function prepareDateInputsForExport(node) {
+/*
+ * 导出前的临时 DOM 改写统一走这个工厂：调用方在 visit 里改 DOM 并返回
+ * 还原闭包，所有还原任务按相反顺序执行（保证嵌套改动能正确回滚）。
+ * 四个 prepare*ForExport 共用同一套累加/回滚逻辑，避免重复四份。
+ */
+function createExportRestorer(visit) {
     const restoreTasks = [];
-    const inputs = node.querySelectorAll('input[type="date"]');
+    visit((restore) => restoreTasks.push(restore));
+    return () => restoreTasks.reverse().forEach((restore) => restore());
+}
 
-    inputs.forEach((input) => {
-        const wrapper = input.parentElement;
-        if (!wrapper) return;
-        const display = wrapper.querySelector('.date-display-value') || document.createElement('span');
-        const hadDisplay = wrapper.contains(display);
-        if (!hadDisplay) {
-            display.className = 'date-display-value text-xs md:text-sm font-medium tabular-nums';
-            wrapper.insertBefore(display, input.nextSibling);
-        }
-        display.classList.add('date-display-export');
-        display.textContent = formatDateForDisplay(input.value);
-        // visibility:hidden 而非 display:none：保留 input 在文档流中的占位高度，
-        // 避免 wrapper 塌陷导致 position:absolute 的 display 层变为 0px 高度。
-        input.style.visibility = 'hidden';
+function prepareDateInputsForExport(node) {
+    return createExportRestorer((addRestore) => {
+        node.querySelectorAll('input[type="date"]').forEach((input) => {
+            const wrapper = input.parentElement;
+            if (!wrapper) return;
+            const display = wrapper.querySelector('.date-display-value') || document.createElement('span');
+            const hadDisplay = wrapper.contains(display);
+            if (!hadDisplay) {
+                display.className = 'date-display-value text-xs md:text-sm font-medium tabular-nums';
+                wrapper.insertBefore(display, input.nextSibling);
+            }
+            display.classList.add('date-display-export');
+            display.textContent = formatDateForDisplay(input.value);
+            // visibility:hidden 而非 display:none：保留 input 在文档流中的占位高度，
+            // 避免 wrapper 塌陷导致 position:absolute 的 display 层变为 0px 高度。
+            input.style.visibility = 'hidden';
 
-        restoreTasks.push(() => {
-            input.style.visibility = '';
-            display.classList.remove('date-display-export');
-            if (!hadDisplay) display.remove();
+            addRestore(() => {
+                input.style.visibility = '';
+                display.classList.remove('date-display-export');
+                if (!hadDisplay) display.remove();
+            });
         });
     });
-
-    return () => {
-        restoreTasks.reverse().forEach((restore) => restore());
-    };
 }
 
 /*
@@ -427,34 +445,29 @@ function prepareDateInputsForExport(node) {
  * Firefox 截图里 number input 会重新出现上下调节按钮。导出前用 div 替换，导出后还原。
  */
 function prepareNumberInputsForExport(node) {
-    const restoreTasks = [];
-    const inputs = node.querySelectorAll('input[type="number"]');
+    return createExportRestorer((addRestore) => {
+        node.querySelectorAll('input[type="number"]').forEach((input) => {
+            const display = document.createElement('div');
+            display.className = input.className;
+            const cs = window.getComputedStyle(input);
+            // 保留输入框的对齐方式（部分 number 框是居中显示的）
+            display.style.display = 'flex';
+            display.style.alignItems = 'center';
+            display.style.justifyContent = cs.textAlign === 'center'
+                ? 'center'
+                : (cs.textAlign === 'right' ? 'flex-end' : 'flex-start');
+            // 保留动态计算的左内边距，防止多字符货币符号（如 NT$）在截图时与数值重叠
+            display.style.paddingLeft = cs.paddingLeft;
+            display.textContent = input.value || input.placeholder || '';
+            input.style.display = 'none';
+            input.parentElement && input.parentElement.insertBefore(display, input);
 
-    inputs.forEach((input) => {
-        const display = document.createElement('div');
-        display.className = input.className;
-        const cs = window.getComputedStyle(input);
-        // 保留输入框的对齐方式（部分 number 框是居中显示的）
-        display.style.display = 'flex';
-        display.style.alignItems = 'center';
-        display.style.justifyContent = cs.textAlign === 'center'
-            ? 'center'
-            : (cs.textAlign === 'right' ? 'flex-end' : 'flex-start');
-        // 保留动态计算的左内边距，防止多字符货币符号（如 NT$）在截图时与数值重叠
-        display.style.paddingLeft = cs.paddingLeft;
-        display.textContent = input.value || input.placeholder || '';
-        input.style.display = 'none';
-        input.parentElement && input.parentElement.insertBefore(display, input);
-
-        restoreTasks.push(() => {
-            input.style.display = '';
-            display.remove();
+            addRestore(() => {
+                input.style.display = '';
+                display.remove();
+            });
         });
     });
-
-    return () => {
-        restoreTasks.reverse().forEach((restore) => restore());
-    };
 }
 
 /*
@@ -515,37 +528,32 @@ function prepareQuoteSectionForExport(mainCard) {
 }
 
 function prepareSelectInputsForExport(node) {
-    const restoreTasks = [];
-    const selects = node.querySelectorAll('select');
+    return createExportRestorer((addRestore) => {
+        node.querySelectorAll('select').forEach((select) => {
+            const selectedValue = select.value;
+            const selectedIndex = select.selectedIndex;
+            const optionSnapshots = Array.from(select.options).map((option) => ({
+                defaultSelected: option.defaultSelected,
+                hasSelectedAttr: option.hasAttribute('selected')
+            }));
 
-    selects.forEach((select) => {
-        const selectedValue = select.value;
-        const selectedIndex = select.selectedIndex;
-        const optionSnapshots = Array.from(select.options).map((option) => ({
-            defaultSelected: option.defaultSelected,
-            hasSelectedAttr: option.hasAttribute('selected')
-        }));
-
-        Array.from(select.options).forEach((option) => {
-            const isCurrent = option.value === select.value;
-            option.defaultSelected = isCurrent;
-            option.toggleAttribute('selected', isCurrent);
-        });
-
-        restoreTasks.push(() => {
-            Array.from(select.options).forEach((option, index) => {
-                const snapshot = optionSnapshots[index];
-                option.defaultSelected = snapshot.defaultSelected;
-                option.toggleAttribute('selected', snapshot.hasSelectedAttr);
+            Array.from(select.options).forEach((option) => {
+                const isCurrent = option.value === select.value;
+                option.defaultSelected = isCurrent;
+                option.toggleAttribute('selected', isCurrent);
             });
-            select.value = selectedValue;
-            if (select.value !== selectedValue) select.selectedIndex = selectedIndex;
+
+            addRestore(() => {
+                Array.from(select.options).forEach((option, index) => {
+                    const snapshot = optionSnapshots[index];
+                    option.defaultSelected = snapshot.defaultSelected;
+                    option.toggleAttribute('selected', snapshot.hasSelectedAttr);
+                });
+                select.value = selectedValue;
+                if (select.value !== selectedValue) select.selectedIndex = selectedIndex;
+            });
         });
     });
-
-    return () => {
-        restoreTasks.reverse().forEach((restore) => restore());
-    };
 }
 
 function saveInputsToCookie() {
@@ -554,12 +562,15 @@ function saveInputsToCookie() {
         currency: els.currency.value,
         cycle: Array.from(els.cycles).find(r => r.checked)?.value || "365",
         dueDate: els.dueDate.value,
+        tradeDate: els.tradeDate.value,
         customRate: els.customRate.value,
         premium: els.premiumInput.value,
         salePrice: els.salePriceInput.value,
         quoteLastEdited
     };
-    setCookie("vps_inputs", JSON.stringify(data), 0.5);
+    // 12 小时：表单是长任务型数据，30 分钟会静默丢失用户输入。
+    // 时长用命名常量表达意图，避免再次误写成 0.5（小时）。
+    setCookie("vps_inputs", JSON.stringify(data), INPUT_CACHE_HOURS);
 }
 
 function loadInputsFromCookie() {
@@ -570,6 +581,7 @@ function loadInputsFromCookie() {
             if(data.price) els.price.value = data.price;
             if(data.currency) els.currency.value = data.currency;
             if(data.dueDate) els.dueDate.value = data.dueDate;
+            if(data.tradeDate) els.tradeDate.value = data.tradeDate;
             if(data.customRate) els.customRate.value = data.customRate;
             if(data.quoteLastEdited === 'sale' || data.quoteLastEdited === 'premium') {
                 quoteLastEdited = data.quoteLastEdited;
@@ -584,14 +596,17 @@ function loadInputsFromCookie() {
                 if(radio) radio.checked = true;
             }
             updateCurrencySymbol();
-        } catch(e) { console.error("Cookie parse error", e); }
+        } catch(e) {
+            // 解析失败时忽略旧数据即可，不应把内部错误打到用户控制台
+            localStorage.removeItem("vps_inputs");
+        }
     }
 }
 
 async function initRates() {
     const base = els.currency.value;
     if (base === 'CNY') {
-        finishRateUpdate(1, "1.0000");
+        finishRateUpdate(1);
         return;
     }
 
@@ -599,10 +614,16 @@ async function initRates() {
     const cachedData = getCookie(cacheKey);
 
     if (cachedData) {
+        let data = null;
         try {
-            const data = JSON.parse(cachedData);
-            finishRateUpdate(data.rate, data.rate.toFixed(4));
+            data = JSON.parse(cachedData);
         } catch (e) {
+            data = null;
+        }
+        // 缓存内容做类型校验：脏数据直接走网络刷新，而不是把异常吞掉后留下空汇率
+        if (data && Number.isFinite(data.rate) && data.rate > 0) {
+            finishRateUpdate(data.rate);
+        } else {
             manualRefreshRate(false);
         }
     } else {
@@ -624,7 +645,7 @@ async function manualRefreshRate(isUserClick = true) {
             if (parsed.resetTime && Date.now() < parsed.resetTime) {
                 limitData = parsed;
             } else {
-                limitData = { count: 0, resetTime: Date.now() + RATE_CACHE_HOURS*3600*1000 };
+                limitData = { count: 0, resetTime: Date.now() + RATE_LIMIT_WINDOW_HOURS*3600*1000 };
             }
         } catch(e) {}
     }
@@ -644,18 +665,22 @@ async function manualRefreshRate(isUserClick = true) {
 
 async function fetchExchangeRate() {
     const base = els.currency.value;
-    els.refreshIcon.classList.add('spin');
+    els.refreshIcon.classList.add('animate-spin');
     els.apiRateDisplay.textContent = "刷新中";
 
+    // 免费 API 偶发挂起，无超时会让刷新图标永久旋转。8s 足够覆盖正常响应。
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, { signal: controller.signal });
         const data = await response.json();
         
         if (data.result === "success") {
             const baseInCNY = data.rates && data.rates[base];
             if (typeof baseInCNY === 'number' && baseInCNY > 0 && Number.isFinite(baseInCNY)) {
                 const rate = 1 / baseInCNY;
-                finishRateUpdate(rate, rate.toFixed(4));
+                finishRateUpdate(rate);
                 
                 const cacheData = JSON.stringify({ rate: rate, time: Date.now() });
                 setCookie(`vps_rate_${base}`, cacheData, RATE_CACHE_HOURS);
@@ -667,17 +692,24 @@ async function fetchExchangeRate() {
             throw new Error("API Error");
         }
     } catch (error) {
-        console.error(error);
+        // 失败已通过 toast 告知用户；控制台不再重复打印堆栈
         els.apiRateDisplay.textContent = "汇率刷新";
-        els.refreshIcon.classList.remove('spin');
-        showToast("获取汇率失败");
+        els.refreshIcon.classList.remove('animate-spin');
+        showToast(error && error.name === 'AbortError' ? "汇率接口超时" : "获取汇率失败");
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
-function finishRateUpdate(rate, text) {
+function finishRateUpdate(rate) {
+    // 缓存数据可能被旧版本写坏，显式校验避免把 NaN 之类写进输入框
+    if (!Number.isFinite(rate) || rate <= 0) {
+        els.refreshIcon.classList.remove('animate-spin');
+        return;
+    }
     els.customRate.value = rate.toFixed(4);
     els.apiRateDisplay.textContent = "汇率刷新";
-    els.refreshIcon.classList.remove('spin');
+    els.refreshIcon.classList.remove('animate-spin');
     calculate();
 }
 
@@ -700,8 +732,12 @@ function hideRateLimitTip() {
 function showToast(msg) {
     els.toast.textContent = msg;
     els.toast.classList.add('show');
-    setTimeout(() => {
+    // 清除上一次的定时器：否则前一个 timer 到期会把当前 toast 提前收起，
+    // 导致连续提示时第二条只显示一小段时间。
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
         els.toast.classList.remove('show');
+        toastTimer = null;
     }, 2000);
 }
 
@@ -743,8 +779,11 @@ function updateCurrencySymbol() {
     const code = els.currency.value;
     const sym = currencySymbols[code] || code;
     els.symbolDisplay.textContent = sym;
-    // Dynamically adjust input left padding to prevent symbol/text overlap
-    requestAnimationFrame(() => {
+    // 取消上一次未执行的回调：连续切换币种时只按最新符号量一次 padding，
+    // 避免旧回调覆盖新结果造成符号与输入文本重叠。
+    if (symbolPaddingRaf) cancelAnimationFrame(symbolPaddingRaf);
+    symbolPaddingRaf = requestAnimationFrame(() => {
+        symbolPaddingRaf = 0;
         const symRect = els.symbolDisplay.getBoundingClientRect();
         const inputRect = els.price.getBoundingClientRect();
         const neededPad = symRect.right - inputRect.left + 6;
@@ -781,27 +820,31 @@ function calculate() {
     }
 
     const diffTime = due - trade;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const rawDiffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const dailyPrice = cycleDays > 0 ? price / cycleDays : 0;
 
     let valOrig = 0, valCNY = 0;
 
-    if (diffDays > 0) {
-        valOrig = dailyPrice * diffDays;
+    // 剩余天数与付款周期解耦时（如月付机器已过 3 个月未续费），若直接按
+    // dailyPrice * diffDays 计算会得到数倍于原价的荒谬结果。这里把有效天数
+    // 收敛到 [0, cycleDays]：剩余价值永远不可能超过一整期续费价。
+    const effectiveDays = Math.max(0, Math.min(rawDiffDays, cycleDays));
+
+    if (effectiveDays > 0) {
+        valOrig = dailyPrice * effectiveDays;
         valCNY = valOrig * rate;
     }
 
-    // 进度条语义：当前续费周期内的「剩余比例」，文案显示按总剩余天数 / 周期取整。
+    // 进度条语义：当前续费周期内的「剩余比例」。剩余天数如实展示（rawDiffDays），
+    // 但百分比必须收敛到 [0, 100]：剩余天数超过一个周期时（如月付机器已 3 个月
+    // 未续费），文案显示 1100% 会让进度条视觉溢出，这里统一显示为 100%。
     let progressPct;
     let displayProgressPct;
-    if (diffDays <= 0) {
+    if (rawDiffDays <= 0) {
         progressPct = 0;
         displayProgressPct = 0;
-    } else if (diffDays >= cycleDays) {
-        progressPct = 100;
-        displayProgressPct = Math.round((diffDays / cycleDays) * 100);
     } else {
-        displayProgressPct = Math.max(1, Math.round((diffDays / cycleDays) * 100));
+        displayProgressPct = Math.min(100, Math.max(1, Math.round((rawDiffDays / cycleDays) * 100)));
         progressPct = displayProgressPct;
     }
 
@@ -809,7 +852,7 @@ function calculate() {
     remainingValueCNY = valCNY;
     setFinalValueDisplay(valCNY.toFixed(2));
     els.originalCurrencyValue.textContent = `≈ ${valOrig.toFixed(2)} ${els.currency.value}`;
-    els.daysRemaining.textContent = diffDays > 0 ? diffDays : '0';
+    els.daysRemaining.textContent = rawDiffDays > 0 ? rawDiffDays : '0';
     els.progressText.textContent = `${displayProgressPct}%`;
     syncQuoteFields();
 }
@@ -825,33 +868,50 @@ function setFinalValueDisplay(value) {
 function copyResult() {
     const price = els.price.value || "0";
     const currency = els.currency.value;
-    const rate = els.customRate.value || "0";
+    const rateNum = parseFloat(els.customRate.value);
+    const rate = Number.isFinite(rateNum) && rateNum > 0 ? els.customRate.value : "1";
     const days = els.daysRemaining.textContent;
     const valCNY = els.finalValue.textContent;
     const valOrig = els.originalCurrencyValue.textContent.replace('≈', '').trim().split(' ')[0];
-    const premium = els.premiumInput.value || '0.00';
-    const salePrice = els.salePriceInput.value || valCNY;
+    const premium = els.premiumInput.value.trim();
+    const salePrice = els.salePriceInput.value.trim();
     const tradeDate = els.tradeDate.value;
     const dueDate = els.dueDate.value;
-    
-    let cycleText = "年付";
-    for (const radio of els.cycles) {
-        if (radio.checked) { 
-            cycleText = radio.parentElement.innerText.trim();
-            break; 
-        }
+
+    // 按 radio.value 查表，避免依赖 label 的 innerText（DOM 重构会让文案变空）
+    const cycleRadio = Array.from(els.cycles).find(r => r.checked);
+    const cycleText = (cycleRadio && CYCLE_LABELS[cycleRadio.value]) || "年付";
+
+    // 日期统一用页面显示格式（斜线），与界面保持一致
+    const fmtDate = (v) => (v ? v.replace(/-/g, '/') : '未设置');
+    const cnyPrice = (parseFloat(price) * parseFloat(rate)).toFixed(2);
+
+    const lines = [
+        `## 🐔 VPS 剩余价值`,
+        `- 📅 交易日期：${fmtDate(tradeDate)}`,
+        `- 💹 外币汇率：1 ${currency} ≈ ${rate} CNY`,
+        `- 💰 续费价格：${price} ${currency}/${cycleText}（约 ${cnyPrice} 元）`
+    ];
+
+    // 到期日未填时不输出“--天（ 到期）”这类无意义内容
+    if (dueDate) {
+        lines.push(`- ⏳ 剩余天数：${days} 天（${fmtDate(dueDate)} 到期）`);
+    } else {
+        lines.push(`- ⏳ 剩余天数：未设置到期日`);
     }
 
-    const cnyPrice = (parseFloat(price) * parseFloat(rate)).toFixed(2);
-    const md = `## 🐔 VPS 剩余价值
-- 📅 交易日期：${tradeDate}
-- 💹 外币汇率：1 ${currency} ≈ ${rate} CNY
-- 💰 续费价格：${price} ${currency}/${cycleText}（约 ${cnyPrice} 元）
-- ⏳ 剩余天数：${days}天（${dueDate} 到期）
-- 💎 剩余价值：${valCNY}元（约 ${valOrig} ${currency}）
-- 🧾 溢价 / 总价：${premium}元 / ${salePrice}元`;
+    lines.push(`- 💎 剩余价值：${valCNY} 元（约 ${valOrig} ${currency}）`);
 
-    copyTextToClipboard(md, flashCopyButton);
+    // 溢价与总价均未填时不输出“0.00 / 123.07”——那会被读成明确结论
+    if (premium === '' && salePrice === '') {
+        lines.push(`- 🧾 溢价 / 总价：未设置`);
+    } else {
+        const premiumText = premium !== '' ? `${premium} 元` : '未设置';
+        const saleText = salePrice !== '' ? `${salePrice} 元` : '未设置';
+        lines.push(`- 🧾 溢价 / 总价：${premiumText} / ${saleText}`);
+    }
+
+    copyTextToClipboard(lines.join(String.fromCharCode(13, 10)), flashCopyButton);
 }
 
 function copyTextToClipboard(text, done) {
@@ -908,8 +968,13 @@ const modal = {
     el: document.getElementById('imageModal'),
     img: document.getElementById('generatedImage'),
     loading: document.getElementById('modalLoading'),
-    actions: document.getElementById('modalActions')
+    actions: document.getElementById('modalActions'),
+    downloadBtn: document.getElementById('downloadImageBtn'),
+    closeBtn: document.getElementById('closeImageModalBtn')
 };
+
+// 打开/关闭时把焦点移入/移出 modal，避免 Tab 跑到背景控件上（aria-modal 的基本要求）
+let modalLastFocused = null;
 
 function closeImageModal() {
     modal.el.classList.remove('opacity-100');
@@ -920,6 +985,10 @@ function closeImageModal() {
         modal.loading.classList.remove('hidden');
         modal.img.src = '';
         resetGeneratedImage();
+        if (modalLastFocused && typeof modalLastFocused.focus === 'function') {
+            modalLastFocused.focus();
+            modalLastFocused = null;
+        }
     }, 300);
 }
 
@@ -928,10 +997,28 @@ modal.el.addEventListener('click', (e) => {
     if (e.target === modal.el) closeImageModal();
 });
 
+// 焦点陷阱：打开期间 Tab 只在 modal 内循环
+modal.el.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || modal.el.classList.contains('hidden')) return;
+    const focusables = modal.el.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+    }
+});
+
 async function generateImage() {
-    console.log('generateImage called');
-    
     // Show modal immediately to indicate processing
+    if (!modal.el.classList.contains('hidden')) return; // 防止重复点击叠加生成
+    if (document.activeElement && typeof document.activeElement.focus === 'function') {
+        modalLastFocused = document.activeElement;
+    }
     modal.el.classList.remove('hidden');
     // Force reflow
     void modal.el.offsetWidth;
@@ -982,13 +1069,18 @@ async function generateImage() {
             resetGeneratedImage();
             generatedImageUrl = URL.createObjectURL(blob);
 
-            console.log('Image generated successfully');
-            modal.loading.classList.add('hidden');
             modal.img.src = generatedImageUrl;
+            if (modal.downloadBtn) {
+                modal.downloadBtn.href = generatedImageUrl;
+                modal.downloadBtn.download = `vps-value-${els.dueDate.value || 'share'}.webp`;
+            }
+            modal.loading.classList.add('hidden');
             modal.img.classList.remove('hidden');
             modal.actions.classList.remove('hidden');
+            // 生成完成后把焦点交给关闭按钮，键盘用户可直接 Tab 到下载
+            if (modal.closeBtn) modal.closeBtn.focus();
         } catch (e) {
-            console.error('Synchronous error during image generation:', e);
+            // 错误已通过 toast 告知用户，控制台不再重复打印
             closeImageModal();
             showToast('生成出错');
         } finally {
