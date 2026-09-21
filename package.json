@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/verkyer/vps-jsq.git"
+    "url": "git+https://github.com/Tumb1er1376/vps-valuation.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/verkyer/vps-jsq/issues"
+    "url": "https://github.com/Tumb1er1376/vps-valuation/issues"
   },
-  "homepage": "https://github.com/verkyer/vps-jsq#readme",
+  "homepage": "https://github.com/Tumb1er1376/vps-valuation#readme",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "html-to-image": "^1.11.11",
