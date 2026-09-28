@@ -44,7 +44,7 @@ npx wrangler deploy
 
 #### 一键 Cloudflare 部署：
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Tumb1er1376/vps-valuation)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/lyhbdw/vps-valuation)
 
 ### 自有服务器
 
