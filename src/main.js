@@ -329,8 +329,7 @@ function updateToggleUI(isDark) {
     }
 }
 
-// 注意：函数名沿用历史命名（setCookie / getCookie），实际底层是 localStorage + 过期时间，
-// 同时兼容旧版本可能写到 document.cookie 的数据。
+// 注意：函数名沿用历史命名（setCookie / getCookie），实际底层是 localStorage + 过期时间。
 function setCookie(name, value, hours) {
     const expiresAt = Date.now() + (hours * 60 * 60 * 1000);
     localStorage.setItem(name, JSON.stringify({ value, expiresAt }));
@@ -347,19 +346,6 @@ function getCookie(name) {
             localStorage.removeItem(name);
         } catch (e) {
             localStorage.removeItem(name);
-        }
-    }
-
-    const cname = name + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const ca = decodedCookie.split(';');
-    for(let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(cname) == 0) {
-            return c.substring(cname.length, c.length);
         }
     }
     return "";
@@ -422,7 +408,7 @@ function prepareDateInputsForExport(node) {
             const display = wrapper.querySelector('.date-display-value') || document.createElement('span');
             const hadDisplay = wrapper.contains(display);
             if (!hadDisplay) {
-                display.className = 'date-display-value text-xs md:text-sm font-medium tabular-nums';
+                display.className = 'date-display-value';
                 wrapper.insertBefore(display, input.nextSibling);
             }
             display.classList.add('date-display-export');

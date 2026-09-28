@@ -659,6 +659,17 @@ html.dark .quote-panel .quote-input.premium-negative {
     color: #71717a !important;
 }
 
+/* 输入框非法状态（负数 / 非数字） */
+.input-invalid {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.3) !important;
+}
+
+html.dark .input-invalid {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.3) !important;
+}
+
 /* ============ 操作条 (Action Bar) ============ */
 .action-bar {
     min-height: 36px;
@@ -882,7 +893,6 @@ html.dark #mainCard.exporting {
     display: none;
 }
 
-#mainCard.exporting.quote-export-empty #resultCard .quote-divider,
 #mainCard.exporting.quote-export-empty #resultCard .quote-panel {
     display: none;
 }
