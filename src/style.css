@@ -1,33 +1,35 @@
 /*
- * 精简版 reset：替代 Tailwind preflight（后者 4.9KB，其中大半是本项目
- * 未使用的标签重置）。只保留本项目真正依赖的部分：
- *   - box-sizing + 默认边框色（Tailwind border-width 工具类的前提）
- *   - body margin 归零（否则出现 8px 白边）
- *   - svg/img display:block（否则内联图标基线错位）
- *   - button/input/select 字体与外观继承
- *   - a 颜色/装饰继承
- *   - ::placeholder 颜色（input 有 placeholder）
- *   - .sr-only（radio 用）
- * 注意：这里不定义 --tw-* 变量，Tailwind utilities 里引用它们的规则
- * 会在无变量时回退到浏览器默认值，不影响本项目已使用的工具类。
+ * Vercel Bento Grid Design System
+ * VPS 剩余价值计算器
  */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap');
+
+/* 精简 Reset */
 *,
 ::before,
 ::after {
     box-sizing: border-box;
     border-width: 0;
     border-style: solid;
-    border-color: #e5e7eb;
+    border-color: #e5e5e5;
+}
+
+html {
+    font-feature-settings: "liga" 1, "calt" 1;
 }
 
 body {
     margin: 0;
     line-height: 1.5;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     -moz-tab-size: 4;
     tab-size: 4;
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -35,24 +37,11 @@ a {
     text-decoration: inherit;
 }
 
-/* 标题默认 margin 归零：Tailwind preflight 会做这件事，精简版必须自己补，
-   否则 h1/h2 上下多出 ~20px 空白。本项目用 mb-* 类显式控制间距。 */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-figure,
-blockquote,
-dl,
-dd {
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd {
     margin: 0;
 }
 
-img,
-svg {
+img, svg {
     display: block;
     vertical-align: middle;
 }
@@ -62,9 +51,7 @@ img {
     height: auto;
 }
 
-button,
-input,
-select {
+button, input, select {
     font-family: inherit;
     font-size: 100%;
     font-weight: inherit;
@@ -84,7 +71,11 @@ button {
 
 input::placeholder {
     opacity: 1;
-    color: #9ca3af;
+    color: #a1a1aa;
+}
+
+html.dark input::placeholder {
+    color: #52525b;
 }
 
 [hidden] {
@@ -105,554 +96,181 @@ input::placeholder {
 
 @tailwind utilities;
 
-/* Custom Styles */
-/* body 基础样式已由上面的精简 reset 提供，这里只保留主题相关的部分 */
+/* ============ Vercel Minimalist Background ============ */
 body {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-input,
-select,
-button {
-    font: inherit;
-}
-
-.symbol-display,
-input[type="number"],
-input[type="date"],
-.date-display-value,
-#finalValue,
-#originalCurrencyValue,
-#progressText,
-.days-count-line,
-.quote-input,
-#footerWrap {
-    font-variant-numeric: tabular-nums lining-nums;
-    font-feature-settings: "tnum" 1, "lnum" 1;
-}
-
-/* 输入框非法状态（负数 / 非数字） */
-.input-invalid {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25) !important;
-}
-
-/* 复制成功后的按钮反馈 */
-.btn-copied {
-    background-color: #f59e0b !important;
-    border-color: #f59e0b !important;
-    color: #ffffff !important;
-}
-/* 报价区标签：两个标签的类串原本 189B 且完全一致，下沉至此。
-   聚焦变色由 group-focus-within 改为父级 group 上的等效规则。 */
-.quote-label {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 10px;
-    line-height: 1;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: rgba(100, 116, 139, 0.9);
-    transition: color 0.2s ease;
-}
-
-@media (min-width: 768px) {
-    .quote-label {
-        font-size: 0.75rem;
-    }
-}
-
-html.dark .quote-label {
-    color: rgba(113, 113, 122, 1);
-}
-
-.quote-field:focus-within .quote-label {
-    color: #f59e0b;
-}
-
-.btn-copied svg { color: #ffffff !important; }
-
-.action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-    height: 1.75rem;
-    flex: 1 1 0%;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 0.375rem;
-    font-size: 11px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-@media (min-width: 768px) {
-    .action-btn {
-        font-size: 0.75rem;
-    }
-}
-
-.action-btn svg {
-    transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.action-btn:active {
-    transform: translateY(1px);
-}
-
-.action-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.28);
-}
-
-/* 操作条：磨砂玻璃 */
-.action-bar {
-    min-height: 32px;
-    border-radius: 0.625rem;
-    box-shadow: none;
-    -webkit-backdrop-filter: blur(14px) saturate(1.5);
-    backdrop-filter: blur(14px) saturate(1.5);
-}
-
-html.dark .action-bar {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-html:not(.dark) .action-bar {
-    background-color: rgba(255, 255, 255, 0.85);
-    border-color: rgba(148, 163, 184, 0.42);
-    box-shadow:
-        0 1px 3px rgba(15, 23, 42, 0.07),
-        inset 0 1px 0 rgba(255, 255, 255, 0.85);
-}
-
-html:not(.dark) .action-bar .action-btn {
-    background-color: transparent;
-    border-color: transparent;
-    color: #475569;
-    box-shadow: none;
-}
-
-html:not(.dark) .action-bar .action-btn:hover {
-    background-color: rgba(255, 255, 255, 0.85);
-    border-color: transparent;
-    color: #475569;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-html:not(.dark) .action-bar .action-separator {
-    background-color: rgba(148, 163, 184, 0.4);
-}
-
-.field-icon {
-    color: var(--icon-color);
-}
-
-.icon-renewal,
-.icon-cycle,
-.icon-due-date,
-.icon-trade-date {
-    transform: scale(0.82);
-    transform-origin: center;
-}
-
-.icon-renewal {
-    --icon-color: #2563eb;
-}
-.icon-currency {
-    --icon-color: #f59e0b;
-}
-.icon-cycle {
-    --icon-color: #0891b2;
-}
-.icon-due-date {
-    --icon-color: #3b82f6;
-}
-.icon-trade-date {
-    --icon-color: #7c3aed;
-}
-.icon-value {
-    --icon-color: #059669;
-}
-
-html.dark .icon-renewal {
-    --icon-color: #60a5fa;
-}
-html.dark .icon-currency {
-    --icon-color: #fbbf24;
-}
-html.dark .icon-cycle {
-    --icon-color: #22d3ee;
-}
-html.dark .icon-due-date {
-    --icon-color: #60a5fa;
-}
-html.dark .icon-trade-date {
-    --icon-color: #a78bfa;
-}
-html.dark .icon-value {
-    --icon-color: #34d399;
-}
-
-.quote-panel {
-    padding: 2px 0 0;
-}
-
-#resultCard .result-value-panel + .result-divider {
-    transform: translateY(0.25rem);
-}
-
-#resultCard .result-days-panel {
-    transform: translateY(0.25rem);
-}
-
-#resultCard .quote-divider {
-    transform: translateY(0.3125rem);
-}
-
-#resultCard .result-divider.quote-divider {
-    background-color: transparent !important;
-}
-
-#resultCard .result-divider {
-    background-color: rgba(148, 163, 184, 0.28);
-}
-
-html.dark #resultCard .result-divider {
-    background-color: rgba(255, 255, 255, 0.09);
-}
-
-#resultCard .quote-panel {
-    transform: translateY(-0.0625rem);
-}
-
-#resultCard .result-value-panel {
-    margin-bottom: 0.4rem;
-}
-
-.quote-icon {
-    color: #94a3b8;
-}
-
-html.dark .quote-icon {
-    color: #71717a;
-}
-
-#resultCard .quote-input {
-    font-size: 13px;
-    line-height: 28px;
-    padding-top: 0;
-    padding-right: 12px;
-    padding-bottom: 0;
-}
-
-@media (min-width: 768px) {
-    #resultCard .quote-input {
-        font-size: 15px;
-        line-height: 32px;
-    }
-}
-
-.quote-input.premium-positive {
-    color: #059669 !important;
-    border-color: rgba(5, 150, 105, 0.32) !important;
-}
-
-.quote-input.premium-negative {
-    color: #dc2626 !important;
-    border-color: rgba(220, 38, 38, 0.34) !important;
-}
-
-.quote-input.premium-neutral {
-    color: #64748b !important;
-    border-color: rgba(148, 163, 184, 0.35) !important;
-    opacity: 0.62;
-}
-
-html.dark .quote-input.premium-positive {
-    color: #34d399 !important;
-    border-color: rgba(52, 211, 153, 0.3) !important;
-}
-
-html.dark .quote-input.premium-negative {
-    color: #f87171 !important;
-    border-color: rgba(248, 113, 113, 0.34) !important;
-}
-
-html.dark .quote-input.premium-neutral {
-    color: #a1a1aa !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    opacity: 0.58;
-}
-
-.quote-sale-input {
-    color: #6d28d9 !important;
-    border-color: rgba(109, 40, 217, 0.24) !important;
-}
-
-html.dark .quote-sale-input {
-    color: #c4b5fd !important;
-    border-color: rgba(196, 181, 253, 0.24) !important;
-}
-
-.quote-panel .quote-sale-input.sale-neutral {
-    color: #64748b !important;
-    border-color: rgba(148, 163, 184, 0.35) !important;
-    opacity: 0.68;
-}
-
-html.dark .quote-panel .quote-sale-input.sale-neutral {
-    color: #a1a1aa !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    opacity: 0.62;
-}
-
-/* ============ macOS 磨砂玻璃主题 ============ */
-
-/* 浅色底纹：淡雅白 + 网格线条（中心可见、四周渐隐） */
-body {
-    background-color: #f5f5f7;
+    background-color: #ffffff;
     background-image:
-        radial-gradient(ellipse 110% 85% at 50% 22%, transparent 32%, rgba(245, 245, 247, 0.92) 88%),
-        radial-gradient(52rem 26rem at 50% -12%, rgba(255, 255, 255, 0.7), transparent 62%),
-        linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-        linear-gradient(180deg, #fafafb 0%, #f0f0f4 100%);
-    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px, 100% 100%;
-    background-attachment: fixed;
+        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center top;
 }
 
-/* 深色底纹：近黑渐变 + 网格线条（中心可见、四周渐隐） */
 html.dark body {
-    background-color: #0d0d10;
+    background-color: #000000;
     background-image:
-        radial-gradient(ellipse 110% 85% at 50% 22%, transparent 32%, rgba(13, 13, 16, 0.92) 88%),
-        radial-gradient(52rem 26rem at 50% -12%, rgba(255, 255, 255, 0.045), transparent 62%),
-        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(180deg, #141418 0%, #0b0b0e 100%);
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center top;
 }
 
-/* 主卡片：磨砂玻璃 */
+/* ============ Vercel Main Bento Card ============ */
 #mainCard {
-    border-radius: 20px;
-    -webkit-backdrop-filter: blur(30px) saturate(1.8);
-    backdrop-filter: blur(30px) saturate(1.8);
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 html:not(.dark) #mainCard {
-    background-color: rgba(255, 255, 255, 0.52);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-        0 10px 24px rgba(15, 23, 42, 0.1),
-        0 2px 8px rgba(15, 23, 42, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 html.dark #mainCard {
-    background-color: rgba(34, 34, 42, 0.52);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.38),
-        0 2px 8px rgba(0, 0, 0, 0.24),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    background-color: #0a0a0a;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* 左右分区的玻璃色调：左侧更通透、右侧更实，拉开层级 */
+/* 左右分区对比 */
 html:not(.dark) #mainCard > section:first-of-type {
-    background-color: rgba(248, 250, 252, 0.26);
-    border-color: rgba(148, 163, 184, 0.22);
-}
-
-html:not(.dark) #resultCard {
-    background-color: rgba(255, 255, 255, 0.58);
+    background-color: #fafafa;
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 html.dark #mainCard > section:first-of-type {
-    background-color: rgba(38, 38, 44, 0.3);
-    border-color: rgba(255, 255, 255, 0.1);
+    background-color: #0e0e0e;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+html:not(.dark) #resultCard {
+    background-color: #ffffff;
 }
 
 html.dark #resultCard {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: #0a0a0a;
 }
 
-/* 输入控件：玻璃质感（汇率输入框保持透明底线样式） */
-html:not(.dark) #calcForm input[type="number"]:not(#customRate),
-html:not(.dark) #calcForm input[type="date"],
-html:not(.dark) #calcForm select {
-    background-color: rgba(255, 255, 255, 0.62);
-    border-color: rgba(148, 163, 184, 0.38);
+/* ============ Bento Tiles (便当盒模块) ============ */
+.bento-tile {
+    border-radius: 8px;
+    transition: all 0.15s ease;
 }
 
-/* 报价输入框：布局/字号/描边/聚焦态由此处统一提供，
-   HTML 侧只保留各自的主题色（text-emerald-* / text-violet-*）。
-   原先 400B 的 class 串在两个输入框上完全重复，下沉至此。
-   背景/边框色由上面 #calcForm 的玻璃规则接管（特异性更高），此处不重复声明。 */
+html:not(.dark) .bento-tile {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .bento-tile {
+    background-color: #141414;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ============ Form Controls ============ */
+.symbol-display {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+#price {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+html:not(.dark) #price {
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    color: #171717;
+}
+
+html:not(.dark) #price:focus {
+    border-color: #171717;
+    box-shadow: 0 0 0 1px #171717;
+}
+
+html.dark #price {
+    background-color: #121212;
+    border-color: #262626;
+    color: #ededed;
+}
+
+html.dark #price:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
+}
+
+/* Currency Select */
+html:not(.dark) #currency {
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    color: #171717;
+}
+
+html:not(.dark) #currency:focus {
+    border-color: #171717;
+    box-shadow: 0 0 0 1px #171717;
+}
+
+html.dark #currency {
+    background-color: #121212;
+    border-color: #262626;
+    color: #ededed;
+}
+
+html.dark #currency:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
+}
+
+/* Date Inputs */
 .date-native-input {
     width: 100%;
     height: 2.5rem;
     padding-left: 0.75rem;
     padding-right: 2rem;
-    border-radius: 0.375rem;
+    border-radius: 6px;
     border-width: 1px;
-    font-size: 0.75rem;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.8125rem;
     font-weight: 500;
     outline: none;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 @media (min-width: 768px) {
     .date-native-input {
-        height: 3rem;
-        padding-left: 1.25rem;
-        padding-right: 3rem;
+        height: 2.75rem;
+        padding-left: 1rem;
+        padding-right: 2.5rem;
         font-size: 0.875rem;
     }
 }
 
-/* 报价输入框：布局/字号/描边/聚焦态由此处统一提供，
-   HTML 侧只保留各自的主题色（text-emerald-* / text-violet-*）。
-   原先 400B 的 class 串在两个输入框上完全重复，下沉至此。 */
-.quote-input {
-    width: 100%;
-    height: 1.75rem;
-    padding-left: 1.25rem;
-    padding-right: 0.5rem;
-    border-radius: 0.375rem;
-    border-width: 1px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    text-align: left;
-    outline: none;
-    transition: all 0.2s ease;
+html:not(.dark) .date-native-input {
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    color: #171717;
 }
 
-@media (min-width: 768px) {
-    .quote-input {
-        height: 2rem;
-        font-size: 0.875rem;
-    }
+html:not(.dark) .date-native-input:focus {
+    border-color: #171717;
+    box-shadow: 0 0 0 1px #171717;
 }
 
-/* quote-input 的背景/边框色由 HTML 上的 Tailwind 类（bg-slate-50/80 +
-   dark:bg-zinc-800/40）提供，此处不再重复声明。 */
-
-/* 主题切换开关：玻璃质感 */
-html:not(.dark) #themeToggle {
-    background-color: #cbd5e1;
+html.dark .date-native-input {
+    background-color: #121212;
+    border-color: #262626;
+    color: #ededed;
 }
 
-html.dark #themeToggle {
-    background-color: #3f3f46;
+html.dark .date-native-input:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
 }
 
-/* 卡片顶部高光线条 */
-.metal-card-top-line::after {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: 24px;
-    right: 24px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.55), transparent);
-}
-
-html.dark .metal-card-top-line::after {
-    background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.35), transparent);
-}
-
-/* Cycle Radio Button Styling */
-/* 6 个付款周期按钮共用：抽出长串 Tailwind 工具类，瘦身 HTML */
-.cycle-option {
-    @apply py-1.5 md:py-2.5 text-center rounded-md text-xs md:text-sm transition-all border bg-white/60 border-slate-300/50 text-slate-500 hover:bg-white/90 dark:bg-white/5 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:border-white/20;
-}
-
-.cycle-radio + div {
-    position: relative;
-    box-sizing: border-box;
-}
-
-.cycle-radio:checked + div {
-    color: #f59e0b;
-    font-weight: 700;
-    border-color: #f59e0b;
-    box-shadow: 0 0 0 1px #f59e0b;
-}
-
-html.dark .cycle-radio:checked + div {
-    background-color: rgba(245, 158, 11, 0.14);
-    color: #fbbf24;
-    font-weight: 700;
-    border-color: rgba(251, 191, 36, 0.45);
-    box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.45);
-}
-
-/*
- * 导出态：html-to-image 在 WebKit 下会把外扩 box-shadow 放大成粗描边，
- * 所以导出时改用稳定渲染的 border，视觉厚度与编辑态（1px 边框 + 1px 外扩）一致。
- */
-#mainCard.exporting .cycle-radio:checked + div {
-    border-width: 2px;
-    box-shadow: none;
-}
-
-/* 导出态禁用周期按钮过渡，避免 html-to-image 截到切换动画中的中间值 */
-#mainCard.exporting .cycle-option {
-    transition: none !important;
-}
-
-/* Value Glow Effect */
-.dark .value-glow {
-    text-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
-    background: linear-gradient(180deg, #fff 0%, #fbbf24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-body:not(.dark) .value-glow {
-    color: #f59e0b;
-}
-
-body:not(.dark) .text-amber-600 {
-    color: #f59e0b;
-}
-
-/* Progress Bar Gradient */
-.progress-fill {
-    background: linear-gradient(90deg, #d97706, #fbbf24);
-}
-
-.dark .progress-fill {
-    box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-}
-
-#resultCard .days-progress-row .progress-container {
-    transform: translateY(1.5px);
-}
-
-/* Hide number input spinners */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-    appearance: none !important;
-    margin: 0 !important;
-    display: none !important;
-}
-input[type="number"] {
-    -moz-appearance: textfield;
-    -webkit-appearance: none;
-    appearance: textfield;
-}
-
-/* Date Input Customization */
+/* Date wrapper display */
 .date-input-wrapper {
     position: relative;
     min-width: 0;
@@ -660,15 +278,12 @@ input[type="number"] {
 
 .date-display-value {
     display: none;
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
 }
 
-/*
- * appearance:none 去除 Samsung Internet / MIUI / 部分 Chromium 衍生浏览器
- * 渲染的下拉箭头装饰；background-clip:padding-box 防止背景溢出圆角；
- * min-width:0 防止 input 的 min-content 撑破 flex 父容器（350px 窄屏溢出根因）。
- */
 .date-native-input {
-    font-family: inherit;
+    font-family: 'Geist Mono', monospace;
     position: relative;
     -webkit-appearance: none;
     -moz-appearance: textfield;
@@ -690,9 +305,6 @@ input[type="number"] {
     height: 0 !important;
 }
 
-/*
- * 将 Webkit 原生日历指示器固定在右侧，避免它参与内联布局时遮挡窄屏日期文本。
- */
 .date-native-input::-webkit-calendar-picker-indicator {
     position: absolute;
     top: 0;
@@ -707,11 +319,6 @@ input[type="number"] {
     opacity: 0;
 }
 
-/*
- * Firefox（Gecko）原生日历指示器遵循 -moz 前缀，且仅在未启用 is-firefox
- * 类时（如响应式模式把 UA 模拟成 iOS Safari）才会露出。这里同样隐藏，
- * 避免它和自定义 .date-input-icon 叠加成“多余的日历图标”。
- */
 .date-native-input::-moz-calendar-picker-indicator {
     position: absolute;
     top: 0;
@@ -726,21 +333,6 @@ input[type="number"] {
     opacity: 0;
 }
 
-/*
- * Firefox（Gecko）专用方案：原生 date input 作为透明点击层保留交互，
- * 视觉上改由自绘显示层承担，这样 UA 阴影 DOM 的原生日历图标无论如何渲染都不会露出来。
- *
- * visibility:hidden 是关键：它从渲染树彻底移除元素及其所有伪元素（包括
- * Firefox UA shadow DOM 里的 ::-moz-calendar-picker-indicator 合成层）。
- * 不改变 position（保持 static），使 input 仍在正常文档流中撑开 wrapper 的
- * 高度（来自 h-10 / h-12 Tailwind 类），自绘层再用绝对定位覆盖即可。
- *
- * 只用 @supports(-moz-appearance:none) 匹配引擎而非 UA，因此同时覆盖：
- *   1) 正常 Firefox
- *   2) 响应式模式把 UA 伪装成 iOS Safari 的场景（此前需要额外的 .is-firefox 兜底）
- *   3) html-to-image 导出态（.date-display-export 走同一套样式）
- * .date-display-export 与 Gecko 分支共用声明，故一并列在选择器里。
- */
 @supports (-moz-appearance: none) {
     .date-native-input {
         visibility: hidden;
@@ -757,9 +349,7 @@ input[type="number"] {
         right: 0;
         bottom: 0;
         left: 0;
-        background: rgba(255, 255, 255, 0.62);
-        border: 1px solid rgba(148, 163, 184, 0.38);
-        border-radius: 0.375rem;
+        border-radius: 6px;
         pointer-events: none;
         box-sizing: border-box;
         z-index: 1;
@@ -769,218 +359,494 @@ input[type="number"] {
         text-overflow: ellipsis;
         line-height: 1.2;
         padding: 0.625rem 2.5rem 0.625rem 0.75rem;
-        color: #1e293b;
+    }
+    html:not(.dark) .date-display-value {
+        background-color: #ffffff;
+        border: 1px solid #e5e5e5;
+        color: #171717;
     }
     html.dark .date-display-value {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.12);
-        color: #d4d4d8;
+        background-color: #121212;
+        border: 1px solid #262626;
+        color: #ededed;
     }
 }
 
-/*
- * 导出专用：html-to-image 序列化会丢失原生日历图标的透明样式，
- * 覆盖层必须不透明：Firefox 下半透明会透出原生日历控件残影，导致日期重叠。
- * 这里用预合成色贴近编辑态玻璃底，深色则与编辑态的 #1d1d22 保持一致。
- */
 .date-display-value.date-display-export {
-    background-color: #f9fafb;
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    color: #171717;
 }
 
 html.dark .date-display-value.date-display-export {
-    background-color: #1d1d22;
-    border-color: #3f3f46;
+    background-color: #121212;
+    border-color: #262626;
+    color: #ededed;
 }
-/* 图标始终在 display 层（z-index:1）上方，覆盖 Firefox 和 Chrome 导出两种场景 */
+
 .date-input-wrapper .date-input-icon {
     z-index: 2;
 }
 
+/* ============ Cycle Radio Button (Vercel Inverted Contrast) ============ */
+.cycle-option {
+    padding: 0.4rem 0.25rem;
+    text-align: center;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
 @media (min-width: 768px) {
-    .date-display-value,
-    .date-display-value.date-display-export {
-        padding-left: 1.25rem;
-        padding-right: 3rem;
+    .cycle-option {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8125rem;
     }
 }
 
-html.dark .date-native-input {
-    color-scheme: dark;
+html:not(.dark) .cycle-option {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+    color: #666666;
 }
 
-/* Toast Notification Animation */
-#toast {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+html:not(.dark) .cycle-option:hover {
+    background-color: #f5f5f5;
+    color: #171717;
 }
 
-#toast.show {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+html.dark .cycle-option {
+    background-color: #141414;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    color: #888888;
 }
 
-.amount-copy-tip,
-.rate-limit-tip {
-    visibility: hidden;
-    opacity: 0;
+html.dark .cycle-option:hover {
+    background-color: #1c1c1c;
+    color: #ffffff;
+}
+
+/* 选中态：Vercel 经典的纯黑白反转高对比 */
+.cycle-radio:checked + div {
+    font-weight: 600 !important;
+}
+
+html:not(.dark) .cycle-radio:checked + div {
+    background-color: #171717 !important;
     color: #ffffff !important;
-    font-weight: 400;
+    box-shadow: 0 0 0 1px #171717, 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+html.dark .cycle-radio:checked + div {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 0 0 1px #ffffff, 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+#mainCard.exporting .cycle-radio:checked + div {
+    box-shadow: none;
+}
+
+#mainCard.exporting .cycle-option {
+    transition: none !important;
+}
+
+/* ============ 汇率输入框 ============ */
+#customRate {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+html:not(.dark) #customRate {
+    color: #171717;
+    border-color: #a1a1aa;
+}
+
+html:not(.dark) #customRate:focus {
+    border-color: #171717;
+}
+
+html.dark #customRate {
+    color: #ededed;
+    border-color: #52525b;
+}
+
+html.dark #customRate:focus {
+    border-color: #ffffff;
+}
+
+/* ============ 剩余价值大数字 (Stark Monochrome Vercel) ============ */
+#finalValue {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0 4px;
+    margin: 0 -4px;
+    transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+html:not(.dark) #finalValue {
+    color: #171717;
+}
+
+html:not(.dark) #finalValue:hover {
+    opacity: 0.82;
+}
+
+html.dark #finalValue {
+    color: #ffffff;
+}
+
+html.dark #finalValue:hover {
+    opacity: 0.88;
+}
+
+/* 原币种与复制提示 */
+#originalCurrencyValue {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
 }
 
 .amount-copy-tip {
-    margin-left: -0.75rem;
-    transform: translateY(3px);
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    font-family: 'Geist', sans-serif;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform: translateY(2px);
+    pointer-events: none;
 }
 
 .amount-copy-tip.show {
-    visibility: visible;
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Rate limit small inline tip */
+html:not(.dark) .amount-copy-tip {
+    background-color: #171717;
+    color: #ffffff;
+}
+
+html.dark .amount-copy-tip {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* ============ Progress Bar (Monochrome Track) ============ */
+.progress-container {
+    height: 6px;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+html:not(.dark) .progress-container {
+    background-color: #ebebeb;
+}
+
+html.dark .progress-container {
+    background-color: #262626;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html:not(.dark) .progress-fill {
+    background-color: #171717;
+}
+
+html.dark .progress-fill {
+    background-color: #ffffff;
+}
+
+#daysRemaining,
+#progressText {
+    font-family: 'Geist Mono', monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============ 报价输入框 (Quote inputs) ============ */
+.quote-label {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #71717a;
+    transition: color 0.15s ease;
+}
+
+html.dark .quote-label {
+    color: #a1a1aa;
+}
+
+.quote-field:focus-within .quote-label {
+    color: #171717;
+}
+
+html.dark .quote-field:focus-within .quote-label {
+    color: #ffffff;
+}
+
+.quote-input {
+    width: 100%;
+    height: 2rem;
+    padding-left: 1.25rem;
+    padding-right: 0.5rem;
+    border-radius: 6px;
+    border-width: 1px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: left;
+    outline: none;
+    transition: all 0.15s ease;
+}
+
+html:not(.dark) .quote-input {
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    color: #171717;
+}
+
+html:not(.dark) .quote-input:focus {
+    border-color: #171717;
+    box-shadow: 0 0 0 1px #171717;
+}
+
+html.dark .quote-input {
+    background-color: #121212;
+    border-color: #262626;
+    color: #ededed;
+}
+
+html.dark .quote-input:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px #ffffff;
+}
+
+/* 溢价状态高亮：极简克制 */
+.quote-panel .quote-input.premium-positive {
+    color: #dc2626 !important; /* 红：溢价 */
+}
+html.dark .quote-panel .quote-input.premium-positive {
+    color: #f87171 !important;
+}
+
+.quote-panel .quote-input.premium-negative {
+    color: #16a34a !important; /* 绿：折价/捡漏 */
+}
+html.dark .quote-panel .quote-input.premium-negative {
+    color: #4ade80 !important;
+}
+
+.quote-panel .quote-input.premium-neutral {
+    color: #71717a !important;
+}
+
+/* ============ 操作条 (Action Bar) ============ */
+.action-bar {
+    min-height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+html:not(.dark) .action-bar {
+    background-color: #f5f5f5;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .action-bar {
+    background-color: #141414;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 1.875rem;
+    flex: 1 1 0%;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+/* 次要按钮：复制文本 */
+html:not(.dark) #copyBtn {
+    background-color: transparent;
+    color: #4b5563;
+}
+
+html:not(.dark) #copyBtn:hover {
+    background-color: #ffffff;
+    color: #171717;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html.dark #copyBtn {
+    background-color: transparent;
+    color: #a1a1aa;
+}
+
+html.dark #copyBtn:hover {
+    background-color: #222222;
+    color: #ffffff;
+}
+
+/* 主要按钮：生成图片 (经典 Vercel Solid Button) */
+html:not(.dark) #imgBtn {
+    background-color: #171717;
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+html:not(.dark) #imgBtn:hover {
+    background-color: #000000;
+}
+
+html.dark #imgBtn {
+    background-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+html.dark #imgBtn:hover {
+    background-color: #e5e5e5;
+}
+
+.btn-copied {
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+}
+
+/* Toast 提示 */
+#toast {
+    font-family: 'Geist', sans-serif;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+html:not(.dark) #toast {
+    background-color: #171717;
+    color: #ffffff;
+}
+
+html.dark #toast {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* 频率限制气泡 */
 .rate-limit-tip {
-    transform: translateY(-4px);
-    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+    z-index: 30;
 }
+
 .rate-limit-tip.show {
-    visibility: visible;
     opacity: 1;
     transform: translateY(0);
 }
 
-/* 下拉框文本中间对齐（可视上偏左一点点以补偿箭头区域） */
-.select-centered {
-    text-align: left;
-    text-align-last: left;
-}
-.select-centered option {
-    text-align: left;
+html:not(.dark) .rate-limit-tip {
+    background-color: #171717;
+    color: #ffffff;
 }
 
-/*
- * 生成图片导出：html-to-image 不支持 backdrop-filter，
- * 导出时关闭模糊并使用与页面一致的渐变底（无斑点），玻璃面板以半透明叠加呈现。
- *
- * 浅色/深色共用同一组 background-* 列表，只有渐变里的颜色与网格线色不同，
- * 因此把这些值提成 CSS 变量，避免 浅×深 × Chrome×Firefox 四份重复声明。
- */
+html.dark .rate-limit-tip {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* 主题切换开关 (Vercel Style) */
+#themeToggle {
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+}
+
+html:not(.dark) #themeToggle {
+    background-color: #e5e5e5;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+html.dark #themeToggle {
+    background-color: #27272a;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+#themeToggleKnob {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============ 图片导出专用样式 (Vercel Export) ============ */
 #captureRoot.exporting {
-    --ex-glow-a: rgba(245, 245, 247, 0.92);
-    --ex-glow-b: rgba(255, 255, 255, 0.7);
-    --ex-grid-line: rgba(15, 23, 42, 0.05);
-    --ex-base-top: #fafafb;
-    --ex-base-bottom: #f0f0f4;
-    --ex-surface: #f5f5f7;
-    padding: 16px 12px 12px;
-    background-color: var(--ex-surface);
+    padding: 24px 20px 20px;
+    background-color: #ffffff;
     background-image:
-        radial-gradient(ellipse 110% 85% at 50% 22%, transparent 32%, var(--ex-glow-a) 88%),
-        radial-gradient(52rem 26rem at 50% -12%, var(--ex-glow-b), transparent 62%),
-        linear-gradient(to right, var(--ex-grid-line) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--ex-grid-line) 1px, transparent 1px),
-        linear-gradient(180deg, var(--ex-base-top) 0%, var(--ex-base-bottom) 100%);
-    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px, 100% 100%;
-    background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
-    background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
-}
-html.dark #captureRoot.exporting {
-    --ex-glow-a: rgba(13, 13, 16, 0.92);
-    --ex-glow-b: rgba(255, 255, 255, 0.045);
-    --ex-grid-line: rgba(255, 255, 255, 0.05);
-    --ex-base-top: #141418;
-    --ex-base-bottom: #0b0b0e;
-    --ex-surface: #0d0d10;
+        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
 }
 
-/*
- * Firefox（Gecko）下 html-to-image 序列化多层 linear-gradient 平铺背景会错位，
- * 这里用单张 SVG 网格替代；Safari/Chrome 走上面的 linear-gradient（与编辑态一致）。
- * 只替换网格那一层，其余背景层沿用上面的变量定义。
- */
-@supports (-moz-appearance: none) {
-    /* 网格线色无法直接用 CSS 变量（data URI 不是 var() 作用域），
-       用两条规则分别给浅色/深色提供对应颜色的 SVG data URI。 */
-    #captureRoot.exporting {
-        --ex-grid-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M24 0H0V24' fill='none' stroke='rgba(15,23,42,.05)' stroke-width='1'/%3E%3C/svg%3E");
-        background-image:
-            radial-gradient(ellipse 110% 85% at 50% 22%, transparent 32%, var(--ex-glow-a) 88%),
-            radial-gradient(52rem 26rem at 50% -12%, var(--ex-glow-b), transparent 62%),
-            var(--ex-grid-svg),
-            linear-gradient(180deg, var(--ex-base-top) 0%, var(--ex-base-bottom) 100%);
-        background-size: 100% 100%, 100% 100%, 24px 24px, 100% 100%;
-        background-repeat: no-repeat, no-repeat, repeat, no-repeat;
-    }
-    html.dark #captureRoot.exporting {
-        --ex-grid-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' shape-rendering='crispEdges'%3E%3Cpath d='M24 0H0V24' fill='none' stroke='rgba(255,255,255,.05)' stroke-width='1'/%3E%3C/svg%3E");
-    }
+html.dark #captureRoot.exporting {
+    background-color: #000000;
+    background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
 }
 
 #mainCard.exporting {
     transition: none !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-}
-
-/*
- * 导出阴影：html-to-image 在 WebKit/Safari 下会丢弃 box-shadow，filter 也可能
- * 因克隆节点离屏而不渲染。因此用 JS 预生成一张投影 PNG 贴到卡片后，位图在
- * 所有浏览器都会渲染同一张，保证跨端一致。编辑态 box-shadow 必须清空，避免
- * Chromium 叠加出双重阴影。
- */
-html:not(.dark) #mainCard.exporting,
-html.dark #mainCard.exporting {
-    box-shadow: none;
     position: relative;
     z-index: 1;
 }
-.export-card-shadow {
-    position: absolute;
-    z-index: 0;
-    pointer-events: none;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
+
+html:not(.dark) #mainCard.exporting {
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-/*
- * 导出纯色化：html-to-image 不支持 backdrop-filter，半透明玻璃层
- * 会让网格底纹直接透过卡片显脏（浅色左侧 / 深色右侧尤其明显）。
- * 导出时卡片与左右分区全部换成预合成纯色，分区间不再使用 1px 描边
- * （序列化后 overflow 圆角裁剪不可靠，边线会戳出卡片圆角），边界由色差呈现。
- *
- * 三个表面的纯色由变量提供，浅/深各只需覆盖变量值。
- */
-#mainCard.exporting {
-    --ex-card: #f7f8fa;
-    --ex-panel: #eff1f4;
-    --ex-result: #fcfcfe;
-    background-color: var(--ex-card);
-}
-#mainCard.exporting > section:first-of-type {
-    background-color: var(--ex-panel);
-    border-color: transparent;
-}
-#mainCard.exporting #resultCard {
-    background-color: var(--ex-result);
-}
 html.dark #mainCard.exporting {
-    --ex-card: #18181e;
-    --ex-panel: #1d1d24;
-    --ex-result: #242429;
+    background-color: #0a0a0a;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
-@media (min-width: 768px) {
-    #captureRoot.exporting {
-        padding: 30px 24px 24px;
-    }
-}
-#mainCard.exporting #resultCard {
-    padding-top: 12px;
-}
+
 #mainCard.exporting #btnContainer,
 #captureRoot.exporting #footerWrap {
     display: none;
@@ -991,127 +857,23 @@ html.dark #mainCard.exporting {
     display: none;
 }
 
-/*
- * 生成图片时报价区（溢价/售价）沿用编辑态样式：
- * 保持带边框的两列输入框，仅仅把框内数值设为左对齐。
- * 不再重绘成大数字/徽章样式，与线上版本保持一致。
- */
-#mainCard.exporting .quote-input {
-    text-align: left;
+/* 去除 number spinner */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
-@media (min-width: 768px) {
-    #resultCard .result-summary {
-        transform: translateY(-0.075rem);
-    }
-
-    #resultCard .result-value-panel + .result-divider,
-    #resultCard .result-days-panel {
-        transform: translateY(-0.225rem);
-    }
-
-    #resultCard .quote-divider,
-    #resultCard .quote-panel {
-        transform: translateY(-0.1rem);
-    }
-
-    #resultCard .quote-panel {
-        transform: translateY(-0.1rem);
-    }
-
-    #resultCard .result-value-panel {
-        margin-bottom: 0.6rem;
-        padding-top: 2px;
-        padding-bottom: 2px;
-        transform: translateY(0.5rem);
-    }
-
-    #resultCard .quote-panel {
-        max-width: 100%;
-    }
-
-    #resultCard .quote-field {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.375rem;
-    }
-
-    #resultCard .quote-label {
-        width: 100%;
-    }
-
-    #resultCard .quote-input-wrap {
-        flex: none;
-        width: 100%;
-    }
-
-    #resultCard .result-amount-row {
-        align-items: flex-end;
-        height: 68px;
-    }
-
-    #finalValue {
-        display: block;
-        height: 68px;
-        line-height: 68px;
-    }
-
-    #finalValue.final-value-long {
-        font-size: 54px;
-    }
-
-    #resultCard .result-amount-row.final-value-row-long > span:not(#finalValue) {
-        transform: translateY(-7.33px);
-    }
-
+/* 导出阴影容器 */
+.export-card-shadow {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
 }
-
-@media (max-width: 767px) {
-    #resultCard .result-value-panel {
-        margin-bottom: 0.15rem;
-    }
-
-    #resultCard .amount-copy-row {
-        margin-top: 0.125rem;
-    }
-
-    #resultCard .result-value-panel + .result-divider {
-        margin-top: 0.5rem;
-    }
-
-    #resultCard .quote-panel {
-        margin-bottom: 0.625rem;
-    }
-
-    #mainCard.exporting #resultCard {
-        padding-bottom: 12px;
-    }
-
-    #mainCard.exporting.quote-export-empty #resultCard .result-days-panel {
-        margin-bottom: 0.875rem;
-    }
-
-    #resultCard .result-summary {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-    }
-
-    #resultCard .result-amount-row {
-        align-items: baseline;
-    }
-
-    #resultCard .days-count-line {
-        font-size: 0.8rem;
-        line-height: 1;
-    }
-
-    #resultCard .days-count-line span:last-child {
-        font-size: 0.62em;
-        margin-left: 0.25rem;
-    }
-}
-
-/* Spin Animation：直接复用 Tailwind 的 animate-spin（含同名 @keyframes），
-   不再单独维护一份自定义 .spin 规则。 */
-

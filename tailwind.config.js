@@ -8,11 +8,30 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+        sans: ['Geist', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+      },
+      colors: {
+        vercel: {
+          bg: '#ffffff',
+          darkbg: '#000000',
+          card: '#ffffff',
+          darkcard: '#0a0a0a',
+          subtle: '#fafafa',
+          darksubtle: '#111111',
+          border: 'rgba(0, 0, 0, 0.08)',
+          darkborder: 'rgba(255, 255, 255, 0.12)',
+          text: '#171717',
+          darktext: '#ededed',
+          muted: '#666666',
+          darkmuted: '#888888',
+        }
       },
       boxShadow: {
-        'glow': '0 0 15px rgba(245, 158, 11, 0.15)',
+        'vercel': '0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02)',
+        'vercel-dark': '0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.5)',
+        'vercel-bento': '0 0 0 1px rgba(0, 0, 0, 0.06)',
+        'vercel-bento-dark': '0 0 0 1px rgba(255, 255, 255, 0.08)',
       }
     },
   },
