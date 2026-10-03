@@ -1,10 +1,5 @@
 import './style.css';
 
-// Firefox 检测：为 html 添加标识类，供 CSS 针对性处理原生控件差异
-if (typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent)) {
-    document.documentElement.classList.add('is-firefox');
-}
-
 const API_URL = 'https://open.er-api.com/v6/latest/CNY';
 // 汇率本地缓存时长（小时）。免费 API 一般每天更新一次，12h 足够。
 const RATE_CACHE_HOURS = 12;
@@ -422,7 +417,7 @@ function resetGeneratedImage() {
 
 function formatDateForDisplay(value) {
     const parsed = parseDateInput(value);
-    return parsed ? parsed.replace(/-/g, '/') : (value ? value.replace(/-/g, '/') : '--/--/--');
+    return parsed || value || 'YYYY-MM-DD';
 }
 
 /*
@@ -958,10 +953,10 @@ function copyResult() {
     const cycleRadio = Array.from(els.cycles).find(r => r.checked);
     const cycleText = (cycleRadio && CYCLE_LABELS[cycleRadio.value]) || "年付";
 
-    // 日期统一用页面显示格式（斜线），与界面保持一致
+    // 日期格式固定为 YYYY-MM-DD
     const fmtDate = (v) => {
         const parsed = parseDateInput(v);
-        return parsed ? parsed.replace(/-/g, '/') : (v || '未设置');
+        return parsed || v || '未设置';
     };
     const cnyPrice = (parseFloat(price) * parseFloat(rate)).toFixed(2);
 

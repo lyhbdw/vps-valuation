@@ -236,7 +236,7 @@ html.dark #currency:focus {
     width: 100%;
     height: 2.5rem;
     padding-left: 0.75rem;
-    padding-right: 2rem;
+    padding-right: 2.5rem;
     border-radius: 6px;
     border-width: 1px;
     font-family: 'Geist Mono', monospace;
@@ -244,6 +244,8 @@ html.dark #currency:focus {
     font-weight: 500;
     outline: none;
     transition: all 0.15s ease;
+    background-clip: padding-box;
+    min-width: 0;
 }
 
 @media (min-width: 768px) {
@@ -280,13 +282,6 @@ html.dark .date-native-input:focus {
 /* Date wrapper display */
 .date-input-wrapper {
     position: relative;
-    min-width: 0;
-}
-
-.date-native-input {
-    font-family: 'Geist Mono', monospace;
-    position: relative;
-    background-clip: padding-box;
     min-width: 0;
 }
 
