@@ -524,10 +524,10 @@ function prepareExportShadow(root, mainCard) {
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     ctx.save();
-    ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.42)' : 'rgba(15, 23, 42, 0.2)';
+    ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.42)' : 'rgba(44, 40, 37, 0.12)';
     ctx.shadowBlur = 26;
     ctx.shadowOffsetY = 8;
-    ctx.fillStyle = isDark ? '#18181e' : '#f7f8fa';
+    ctx.fillStyle = isDark ? '#1c1b19' : '#f7f5f0';
     const x = pad;
     const y = pad;
     const rw = cardRect.width;

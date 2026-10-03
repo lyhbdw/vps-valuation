@@ -101,52 +101,52 @@ html.dark input::placeholder {
 
 @tailwind utilities;
 
-/* ============ Vercel Minimalist Background ============ */
+/* ============ Warm Paper / Charcoal Eye-Friendly Background ============ */
 body {
-    background-color: #ffffff;
+    background-color: #f7f5f0;
     background-image:
-        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+        linear-gradient(to right, rgba(44, 40, 37, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(44, 40, 37, 0.025) 1px, transparent 1px);
     background-size: 24px 24px;
     background-position: center top;
 }
 
 html.dark body {
-    background-color: #000000;
+    background-color: #151413;
     background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        linear-gradient(to right, rgba(237, 232, 226, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(237, 232, 226, 0.025) 1px, transparent 1px);
     background-size: 24px 24px;
     background-position: center top;
 }
 
-/* ============ Vercel Main Bento Card ============ */
+/* ============ Main Bento Card (Warm Rounded) ============ */
 #mainCard {
-    border-radius: 12px;
+    border-radius: 16px;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 html:not(.dark) #mainCard {
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.06), 0 4px 16px rgba(44, 40, 37, 0.04);
+    border-color: rgba(44, 40, 37, 0.08);
 }
 
 html.dark #mainCard {
-    background-color: #0a0a0a;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.6);
-    border-color: rgba(255, 255, 255, 0.12);
+    background-color: #1c1b19;
+    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08), 0 6px 20px rgba(0, 0, 0, 0.35);
+    border-color: rgba(237, 232, 226, 0.08);
 }
 
 /* 左右分区对比 */
 html:not(.dark) #mainCard > section:first-of-type {
-    background-color: #fafafa;
-    border-color: rgba(0, 0, 0, 0.08);
+    background-color: #f4f1ea;
+    border-color: rgba(44, 40, 37, 0.07);
 }
 
 html.dark #mainCard > section:first-of-type {
-    background-color: #0e0e0e;
-    border-color: rgba(255, 255, 255, 0.08);
+    background-color: #171614;
+    border-color: rgba(237, 232, 226, 0.07);
 }
 
 html:not(.dark) #resultCard {
@@ -154,23 +154,23 @@ html:not(.dark) #resultCard {
 }
 
 html.dark #resultCard {
-    background-color: #0a0a0a;
+    background-color: #1c1b19;
 }
 
 /* ============ Bento Tiles (便当盒模块) ============ */
 .bento-tile {
-    border-radius: 8px;
+    border-radius: 10px;
     transition: all 0.15s ease;
 }
 
 html:not(.dark) .bento-tile {
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
 }
 
 html.dark .bento-tile {
-    background-color: #141414;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background-color: #23211f;
+    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.06);
 }
 
 /* ============ Form Controls ============ */
@@ -186,47 +186,47 @@ html.dark .bento-tile {
 
 html:not(.dark) #price {
     background-color: #ffffff;
-    border-color: #e5e5e5;
-    color: #171717;
+    border-color: #ded9cf;
+    color: #2c2825;
 }
 
 html:not(.dark) #price:focus {
-    border-color: #171717;
-    box-shadow: 0 0 0 1px #171717;
+    border-color: #78716c;
+    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
 }
 
 html.dark #price {
-    background-color: #121212;
-    border-color: #262626;
-    color: #ededed;
+    background-color: #191816;
+    border-color: #383531;
+    color: #ede8e2;
 }
 
 html.dark #price:focus {
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: #a8a29e;
+    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
 }
 
 /* Currency Select */
 html:not(.dark) #currency {
     background-color: #ffffff;
-    border-color: #e5e5e5;
-    color: #171717;
+    border-color: #ded9cf;
+    color: #2c2825;
 }
 
 html:not(.dark) #currency:focus {
-    border-color: #171717;
-    box-shadow: 0 0 0 1px #171717;
+    border-color: #78716c;
+    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
 }
 
 html.dark #currency {
-    background-color: #121212;
-    border-color: #262626;
-    color: #ededed;
+    background-color: #191816;
+    border-color: #383531;
+    color: #ede8e2;
 }
 
 html.dark #currency:focus {
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: #a8a29e;
+    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
 }
 
 /* Date Inputs */
@@ -257,24 +257,24 @@ html.dark #currency:focus {
 
 html:not(.dark) .date-native-input {
     background-color: #ffffff;
-    border-color: #e5e5e5;
-    color: #171717;
+    border-color: #ded9cf;
+    color: #2c2825;
 }
 
 html:not(.dark) .date-native-input:focus {
-    border-color: #171717;
-    box-shadow: 0 0 0 1px #171717;
+    border-color: #78716c;
+    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
 }
 
 html.dark .date-native-input {
-    background-color: #121212;
-    border-color: #262626;
-    color: #ededed;
+    background-color: #191816;
+    border-color: #383531;
+    color: #ede8e2;
 }
 
 html.dark .date-native-input:focus {
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: #a8a29e;
+    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
 }
 
 /* Date wrapper display */
@@ -326,18 +326,18 @@ html.dark .date-native-input:focus {
     padding-left: 0.75rem;
     padding-right: 2.5rem;
     border-radius: 6px;
-    border: 1px solid #e5e5e5;
+    border: 1px solid #ded9cf;
     background-color: #ffffff;
-    color: #171717;
+    color: #2c2825;
     font-family: 'Geist Mono', monospace;
     font-size: 0.8125rem;
     font-weight: 500;
 }
 
 html.dark .date-display-export {
-    border-color: #262626;
-    background-color: #121212;
-    color: #ededed;
+    border-color: #383531;
+    background-color: #191816;
+    color: #ede8e2;
 }
 
 @media (min-width: 768px) {
@@ -348,7 +348,7 @@ html.dark .date-display-export {
     }
 }
 
-/* ============ Cycle Radio Button (Vercel Inverted Contrast) ============ */
+/* ============ Cycle Radio Button ============ */
 .cycle-option {
     padding: 0.4rem 0.25rem;
     text-align: center;
@@ -368,41 +368,41 @@ html.dark .date-display-export {
 
 html:not(.dark) .cycle-option {
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
-    color: #666666;
+    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
+    color: #6b655f;
 }
 
 html:not(.dark) .cycle-option:hover {
-    background-color: #f5f5f5;
-    color: #171717;
+    background-color: #ede8df;
+    color: #2c2825;
 }
 
 html.dark .cycle-option {
-    background-color: #141414;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
-    color: #888888;
+    background-color: #191816;
+    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08);
+    color: #9c958d;
 }
 
 html.dark .cycle-option:hover {
-    background-color: #1c1c1c;
-    color: #ffffff;
+    background-color: #2b2825;
+    color: #ede8e2;
 }
 
-/* 选中态：Vercel 经典的纯黑白反转高对比 */
+/* 选中态：温润深炭 / 象牙暖白，柔和高对比但不刺眼 */
 .cycle-radio:checked + div {
     font-weight: 600 !important;
 }
 
 html:not(.dark) .cycle-radio:checked + div {
-    background-color: #171717 !important;
+    background-color: #2c2825 !important;
     color: #ffffff !important;
-    box-shadow: 0 0 0 1px #171717, 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 0 0 1px #2c2825, 0 1px 2px rgba(44, 40, 37, 0.1) !important;
 }
 
 html.dark .cycle-radio:checked + div {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    box-shadow: 0 0 0 1px #ffffff, 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+    background-color: #ede8e2 !important;
+    color: #1c1b19 !important;
+    box-shadow: 0 0 0 1px #ede8e2, 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 #mainCard.exporting .cycle-radio:checked + div {
@@ -420,24 +420,24 @@ html.dark .cycle-radio:checked + div {
 }
 
 html:not(.dark) #customRate {
-    color: #171717;
-    border-color: #a1a1aa;
+    color: #2c2825;
+    border-color: #a8a29e;
 }
 
 html:not(.dark) #customRate:focus {
-    border-color: #171717;
+    border-color: #2c2825;
 }
 
 html.dark #customRate {
-    color: #ededed;
-    border-color: #52525b;
+    color: #ede8e2;
+    border-color: #66615b;
 }
 
 html.dark #customRate:focus {
-    border-color: #ffffff;
+    border-color: #ede8e2;
 }
 
-/* ============ 剩余价值大数字 (Stark Monochrome Vercel) ============ */
+/* ============ 剩余价值大数字 ============ */
 #finalValue {
     font-family: 'Geist Mono', monospace;
     font-variant-numeric: tabular-nums;
@@ -450,7 +450,7 @@ html.dark #customRate:focus {
 }
 
 html:not(.dark) #finalValue {
-    color: #171717;
+    color: #2c2825;
 }
 
 html:not(.dark) #finalValue:hover {
@@ -458,7 +458,7 @@ html:not(.dark) #finalValue:hover {
 }
 
 html.dark #finalValue {
-    color: #ffffff;
+    color: #ede8e2;
 }
 
 html.dark #finalValue:hover {
@@ -485,16 +485,16 @@ html.dark #finalValue:hover {
 }
 
 html:not(.dark) .amount-copy-tip {
-    background-color: #171717;
+    background-color: #2c2825;
     color: #ffffff;
 }
 
 html.dark .amount-copy-tip {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ede8e2;
+    color: #1c1b19;
 }
 
-/* ============ Progress Bar (Monochrome Track) ============ */
+/* ============ Progress Bar (Warm Tone Track) ============ */
 .progress-container {
     height: 6px;
     border-radius: 9999px;
@@ -502,11 +502,11 @@ html.dark .amount-copy-tip {
 }
 
 html:not(.dark) .progress-container {
-    background-color: #ebebeb;
+    background-color: #e6e2d8;
 }
 
 html.dark .progress-container {
-    background-color: #262626;
+    background-color: #33302c;
 }
 
 .progress-fill {
@@ -516,11 +516,11 @@ html.dark .progress-container {
 }
 
 html:not(.dark) .progress-fill {
-    background-color: #171717;
+    background-color: #2c2825;
 }
 
 html.dark .progress-fill {
-    background-color: #ffffff;
+    background-color: #d8d2c9;
 }
 
 #daysRemaining,
@@ -548,11 +548,11 @@ html.dark .quote-label {
 }
 
 .quote-field:focus-within .quote-label {
-    color: #171717;
+    color: #2c2825;
 }
 
 html.dark .quote-field:focus-within .quote-label {
-    color: #ffffff;
+    color: #ede8e2;
 }
 
 .quote-input {
@@ -573,24 +573,24 @@ html.dark .quote-field:focus-within .quote-label {
 
 html:not(.dark) .quote-input {
     background-color: #ffffff;
-    border-color: #e5e5e5;
-    color: #171717;
+    border-color: #ded9cf;
+    color: #2c2825;
 }
 
 html:not(.dark) .quote-input:focus {
-    border-color: #171717;
-    box-shadow: 0 0 0 1px #171717;
+    border-color: #78716c;
+    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
 }
 
 html.dark .quote-input {
-    background-color: #121212;
-    border-color: #262626;
-    color: #ededed;
+    background-color: #191816;
+    border-color: #383531;
+    color: #ede8e2;
 }
 
 html.dark .quote-input:focus {
-    border-color: #ffffff;
-    box-shadow: 0 0 0 1px #ffffff;
+    border-color: #a8a29e;
+    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
 }
 
 /* 溢价状态高亮：极简克制 */
@@ -609,7 +609,7 @@ html.dark .quote-panel .quote-input.premium-negative {
 }
 
 .quote-panel .quote-input.premium-neutral {
-    color: #71717a !important;
+    color: #78716c !important;
 }
 
 /* 输入框非法状态（负数 / 非数字） */
@@ -635,13 +635,13 @@ html.dark .input-invalid {
 }
 
 html:not(.dark) .action-bar {
-    background-color: #f5f5f5;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+    background-color: #ede8df;
+    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
 }
 
 html.dark .action-bar {
-    background-color: #141414;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background-color: #171614;
+    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.07);
 }
 
 .action-btn {
@@ -663,44 +663,44 @@ html.dark .action-bar {
 /* 次要按钮：复制文本 */
 html:not(.dark) #copyBtn {
     background-color: transparent;
-    color: #4b5563;
+    color: #57534e;
 }
 
 html:not(.dark) #copyBtn:hover {
     background-color: #ffffff;
-    color: #171717;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #2c2825;
+    box-shadow: 0 1px 2px rgba(44, 40, 37, 0.05);
 }
 
 html.dark #copyBtn {
     background-color: transparent;
-    color: #a1a1aa;
+    color: #a8a29e;
 }
 
 html.dark #copyBtn:hover {
-    background-color: #222222;
-    color: #ffffff;
+    background-color: #282623;
+    color: #ede8e2;
 }
 
-/* 主要按钮：生成图片 (经典 Vercel Solid Button) */
+/* 主要按钮：生成图片 */
 html:not(.dark) #imgBtn {
-    background-color: #171717;
+    background-color: #2c2825;
     color: #ffffff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(44, 40, 37, 0.12);
 }
 
 html:not(.dark) #imgBtn:hover {
-    background-color: #000000;
+    background-color: #1c1917;
 }
 
 html.dark #imgBtn {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ede8e2;
+    color: #1c1b19;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 html.dark #imgBtn:hover {
-    background-color: #e5e5e5;
+    background-color: #ded8cf;
 }
 
 .btn-copied {
@@ -724,13 +724,13 @@ html.dark #imgBtn:hover {
 }
 
 html:not(.dark) #toast {
-    background-color: #171717;
+    background-color: #2c2825;
     color: #ffffff;
 }
 
 html.dark #toast {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ede8e2;
+    color: #1c1b19;
 }
 
 /* 频率限制气泡 */
@@ -755,16 +755,16 @@ html.dark #toast {
 }
 
 html:not(.dark) .rate-limit-tip {
-    background-color: #171717;
+    background-color: #2c2825;
     color: #ffffff;
 }
 
 html.dark .rate-limit-tip {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #ede8e2;
+    color: #1c1b19;
 }
 
-/* 主题切换开关 (Vercel Style) */
+/* 主题切换开关 */
 #themeToggle {
     position: relative;
     display: inline-flex;
@@ -778,13 +778,13 @@ html.dark .rate-limit-tip {
 }
 
 html:not(.dark) #themeToggle {
-    background-color: #e5e5e5;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+    background-color: #ded9ce;
+    box-shadow: inset 0 0 0 1px rgba(44, 40, 37, 0.08);
 }
 
 html.dark #themeToggle {
-    background-color: #27272a;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    background-color: #2e2b28;
+    box-shadow: inset 0 0 0 1px rgba(237, 232, 226, 0.1);
 }
 
 #themeToggleKnob {
@@ -807,21 +807,21 @@ html:not(.dark) #themeToggleKnob.translate-x-1 {
     transform: translateX(0) !important;
 }
 
-/* ============ 图片导出专用样式 (Vercel Export) ============ */
+/* ============ 图片导出专用样式 (Warm Export) ============ */
 #captureRoot.exporting {
     padding: 24px 20px 20px;
-    background-color: #ffffff;
+    background-color: #f7f5f0;
     background-image:
-        linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+        linear-gradient(to right, rgba(44, 40, 37, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(44, 40, 37, 0.025) 1px, transparent 1px);
     background-size: 24px 24px;
 }
 
 html.dark #captureRoot.exporting {
-    background-color: #000000;
+    background-color: #151413;
     background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        linear-gradient(to right, rgba(237, 232, 226, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(237, 232, 226, 0.025) 1px, transparent 1px);
     background-size: 24px 24px;
 }
 
@@ -833,12 +833,12 @@ html.dark #captureRoot.exporting {
 
 html:not(.dark) #mainCard.exporting {
     background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
 }
 
 html.dark #mainCard.exporting {
-    background-color: #0a0a0a;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+    background-color: #1c1b19;
+    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.1);
 }
 
 #mainCard.exporting #btnContainer,

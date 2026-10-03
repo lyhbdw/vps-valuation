@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VPS 剩余价值计算器</title>
     <meta name="description" content="VPS 剩余价值计算器：输入续费价格、付款周期与到期日，实时算出剩余价值、剩余天数与转让溢价，支持多币种、自定义汇率与分享图生成。">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#151413" media="(prefers-color-scheme: dark)">
     <meta name="color-scheme" content="light dark">
     <meta property="og:type" content="website">
     <meta property="og:title" content="VPS 剩余价值计算器">
     <meta property="og:description" content="算算你的 VPS 还值多少钱：剩余价值、剩余天数、转让溢价一键搞定。">
-    <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cpath d='M32 14L16 46h32L32 14z' fill='%23ffffff'/%3E%3C/svg%3E">
+    <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23151413'/%3E%3Cpath d='M32 14L16 46h32L32 14z' fill='%23ede8e2'/%3E%3C/svg%3E">
     <meta name="twitter:card" content="summary">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000000'/%3E%3Cpath d='M32 14L16 46h32L32 14z' fill='%23ffffff'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23151413'/%3E%3Cpath d='M32 14L16 46h32L32 14z' fill='%23ede8e2'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -31,16 +31,16 @@
         })();
     </script>
     <style>
-        .app-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#ffffff;transition:opacity 120ms ease,visibility 120ms ease}
-        html.dark .app-loader{background:#000000}
+        .app-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#f7f5f0;transition:opacity 120ms ease,visibility 120ms ease}
+        html.dark .app-loader{background:#151413}
         .app-loader.is-hidden{visibility:hidden;opacity:0;pointer-events:none}
-        .app-loader__dot{width:18px;height:18px;border:2px solid rgba(0,0,0,.15);border-top-color:#000000;border-radius:9999px;animation:app-loader-spin 600ms linear infinite}
-        html.dark .app-loader__dot{border-color:rgba(255,255,255,.2);border-top-color:#ffffff}
+        .app-loader__dot{width:18px;height:18px;border:2px solid rgba(44,40,37,.15);border-top-color:#2c2825;border-radius:9999px;animation:app-loader-spin 600ms linear infinite}
+        html.dark .app-loader__dot{border-color:rgba(237,232,226,.2);border-top-color:#ede8e2}
         @keyframes app-loader-spin{to{transform:rotate(360deg)}}
         @media (prefers-reduced-motion:reduce){.app-loader{transition:none}.app-loader__dot{animation:none}}
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start md:justify-center px-3 pb-6 pt-6 md:px-4 md:py-8 text-neutral-900 dark:text-neutral-100 font-sans">
+<body class="min-h-screen flex flex-col items-center justify-start md:justify-center px-3 pb-6 pt-6 md:px-4 md:py-8 text-[#2c2825] dark:text-[#ede8e2] font-sans">
 
     <div id="appLoader" class="app-loader" role="status" aria-label="页面加载中">
         <span class="app-loader__dot" aria-hidden="true"></span>
@@ -51,23 +51,23 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-3.5 px-1">
             <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-md bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shrink-0 shadow-sm">
+                <div class="w-7 h-7 rounded-md bg-[#2c2825] dark:bg-[#ede8e2] flex items-center justify-center text-white dark:text-[#1c1b19] shrink-0 shadow-sm">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2L2 19.5h20L12 2z"/>
                     </svg>
                 </div>
-                <h1 class="text-base md:text-lg font-semibold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2 leading-none">
+                <h1 class="text-base md:text-lg font-semibold tracking-tight text-[#2c2825] dark:text-[#ede8e2] flex items-center gap-2 leading-none">
                     <span>VPS 剩余价值</span>
-                    <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 font-medium">Bento</span>
+                    <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded border border-[#ded9cf] dark:border-[#383531] text-[#78716c] dark:text-[#a8a29e] font-medium">Bento</span>
                 </h1>
             </div>
             
             <div class="flex items-center gap-1.5">
-                <a href="https://github.com/lyhbdw/vps-valuation" target="_blank" rel="noopener noreferrer" aria-label="在 GitHub 上查看源码" title="GitHub 源码" class="w-7 h-7 rounded-md flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:text-neutral-500 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
+                <a href="https://github.com/lyhbdw/vps-valuation" target="_blank" rel="noopener noreferrer" aria-label="在 GitHub 上查看源码" title="GitHub 源码" class="w-7 h-7 rounded-md flex items-center justify-center text-[#78716c] hover:text-[#2c2825] dark:text-[#a8a29e] dark:hover:text-[#ede8e2] hover:bg-[#ede8df] dark:hover:bg-[#282623] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400">
                     <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
                 </a>
                 <button id="themeToggle" type="button" aria-label="切换深色/浅色模式" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none" title="切换深色/浅色模式">
-                    <span id="themeToggleKnob" class="h-4 w-4 rounded-full bg-white dark:bg-neutral-100 shadow flex items-center justify-center">
+                    <span id="themeToggleKnob" class="h-4 w-4 rounded-full bg-white dark:bg-[#ede8e2] shadow flex items-center justify-center">
                         <!-- Moon Icon -->
                         <svg class="w-2.5 h-2.5 text-neutral-800 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         <!-- Sun Icon -->
@@ -78,10 +78,10 @@
         </div>
 
         <!-- Main Card Bento Grid -->
-        <div id="mainCard" class="relative rounded-xl overflow-hidden flex flex-col md:flex-row transition-all duration-200 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#0a0a0a]">
+        <div id="mainCard" class="relative rounded-2xl overflow-hidden flex flex-col md:flex-row transition-all duration-200 border border-[#e5e1d8] dark:border-[#2e2b28] bg-white dark:bg-[#1c1b19]">
             
             <!-- Left Input Section (Bento Form) -->
-            <section class="w-full md:w-[57%] p-3.5 md:p-6 border-b md:border-b-0 md:border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-[#0e0e0e] transition-colors">
+            <section class="w-full md:w-[57%] p-3.5 md:p-6 border-b md:border-b-0 md:border-r border-[#e5e1d8] dark:border-[#2e2b28] bg-[#f4f1ea] dark:bg-[#171614] transition-colors">
                 <form id="calcForm" class="space-y-3 md:space-y-3.5">
                     
                     <!-- Bento Tile 1: 续费价格 & 币种 -->
@@ -203,7 +203,7 @@
             </section>
 
             <!-- Right Result Section (Bento Showcase) -->
-            <section id="resultCard" class="w-full md:w-[43%] bg-white dark:bg-[#0a0a0a] p-3.5 md:p-6 flex flex-col justify-between relative transition-colors">
+            <section id="resultCard" class="w-full md:w-[43%] bg-white dark:bg-[#1c1b19] p-3.5 md:p-6 flex flex-col justify-between relative transition-colors">
                 
                 <div class="result-summary relative z-10 w-full min-w-0 flex-1 flex flex-col justify-between">
                     
@@ -211,18 +211,18 @@
                     <div class="result-value-panel bento-tile p-3.5 md:p-4 mb-2.5 md:mb-3">
                         <div class="w-full flex items-center justify-between mb-2">
                             <div class="flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-neutral-900 dark:bg-white shrink-0"></span>
-                                <h2 class="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-semibold leading-none">
+                                <span class="w-2 h-2 rounded-full bg-[#2c2825] dark:bg-[#ede8e2] shrink-0"></span>
+                                <h2 class="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-[#78716c] dark:text-[#a8a29e] font-semibold leading-none">
                                     剩余价值 / RESIDUAL
                                 </h2>
                             </div>
-                            <div id="originalCurrencyValue" class="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 font-medium leading-none whitespace-nowrap">
+                            <div id="originalCurrencyValue" class="text-[11px] font-mono text-[#78716c] dark:text-[#a8a29e] font-medium leading-none whitespace-nowrap">
                                 ≈0.00 USD
                             </div>
                         </div>
                         
                         <div class="result-amount-row flex items-baseline justify-end gap-1">
-                            <span class="text-xl md:text-2xl text-neutral-400 dark:text-neutral-600 font-mono font-light select-none">¥</span>
+                            <span class="text-xl md:text-2xl text-[#a8a29e] dark:text-[#78716c] font-mono font-light select-none">¥</span>
                             <span id="finalValue" role="button" tabindex="0" title="点击复制金额" aria-label="点击复制金额" class="text-4xl md:text-5xl lg:text-[54px] font-mono font-bold tracking-tighter leading-none select-all focus-visible:outline-none">0.00</span>
                         </div>
                         
@@ -234,19 +234,19 @@
                     <!-- Bento Tile: 剩余时间与进度 -->
                     <div class="result-days-panel bento-tile p-3 md:p-3.5 mb-2.5 md:mb-3">
                         <div class="flex items-center justify-between mb-1.5">
-                            <div class="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-neutral-500 dark:text-neutral-400 font-semibold flex items-center gap-1.5 leading-none">
-                                <svg class="w-3 h-3 text-neutral-400 dark:text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 10"/></svg>
+                            <div class="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-[#78716c] dark:text-[#a8a29e] font-semibold flex items-center gap-1.5 leading-none">
+                                <svg class="w-3.5 h-3.5 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 10"/></svg>
                                 剩余天数
                             </div>
-                            <div class="days-count-line text-xs md:text-sm font-mono font-semibold text-neutral-800 dark:text-neutral-200 leading-none">
-                                <span id="daysRemaining">0</span> <span class="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase ml-0.5">DAYS</span>
+                            <div class="days-count-line text-xs md:text-sm font-mono font-semibold text-[#2c2825] dark:text-[#ede8e2] leading-none">
+                                <span id="daysRemaining">0</span> <span class="text-[10px] text-[#a8a29e] dark:text-[#78716c] uppercase ml-0.5">DAYS</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2.5">
                             <div class="flex-1 progress-container">
                                 <div id="progressBar" class="progress-fill w-0"></div>
                             </div>
-                            <span id="progressText" class="text-[10px] md:text-[11px] font-mono font-semibold text-neutral-600 dark:text-neutral-400 shrink-0 leading-none">0%</span>
+                            <span id="progressText" class="text-[10px] md:text-[11px] font-mono font-semibold text-[#78716c] dark:text-[#a8a29e] shrink-0 leading-none">0%</span>
                         </div>
                     </div>
 
@@ -254,21 +254,21 @@
                     <div class="quote-panel bento-tile p-3 md:p-3.5 grid grid-cols-2 gap-3 mb-2.5 md:mb-3">
                         <div class="quote-field min-w-0">
                             <label for="premiumInput" class="quote-label mb-1">
-                                <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 溢价 (CNY)
                             </label>
                             <div class="quote-input-wrap relative">
-                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-neutral-400 pointer-events-none">¥</span>
+                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[#a8a29e] dark:text-[#78716c] pointer-events-none">¥</span>
                                 <input type="number" id="premiumInput" step="0.01" class="quote-input" placeholder="0.00" inputmode="decimal">
                             </div>
                         </div>
                         <div class="quote-field min-w-0">
                             <label for="salePriceInput" class="quote-label mb-1">
-                                <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="7" x2="18" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
+                                <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="7" x2="18" y2="7"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="17" x2="14" y2="17"/></svg>
                                 总价 (CNY)
                             </label>
                             <div class="quote-input-wrap relative">
-                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-neutral-400 pointer-events-none">¥</span>
+                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-[#a8a29e] dark:text-[#78716c] pointer-events-none">¥</span>
                                 <input type="number" id="salePriceInput" step="0.01" class="quote-input" placeholder="0.00" inputmode="decimal">
                             </div>
                         </div>
@@ -292,7 +292,7 @@
         </div>
 
         <div id="footerWrap" class="mt-3 text-center">
-            <span class="text-[11px] font-mono text-neutral-400 dark:text-neutral-600 transition-colors">VPS 剩余价值计算器 · v1.0.0</span>
+            <span class="text-[11px] font-mono text-[#78716c] dark:text-[#a8a29e] transition-colors">VPS 剩余价值计算器 · v1.0.0</span>
         </div>
 
     </main>
