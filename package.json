@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tumb1er1376/vps-valuation.git"
+    "url": "git+https://github.com/lyhbdw/vps-valuation.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Tumb1er1376/vps-valuation/issues"
+    "url": "https://github.com/lyhbdw/vps-valuation/issues"
   },
-  "homepage": "https://github.com/Tumb1er1376/vps-valuation#readme",
+  "homepage": "https://github.com/lyhbdw/vps-valuation#readme",
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "html-to-image": "^1.11.11",

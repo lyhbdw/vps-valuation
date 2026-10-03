@@ -811,10 +811,9 @@ function calculate() {
 
     let valOrig = 0, valCNY = 0;
 
-    // 剩余天数与付款周期解耦时（如月付机器已过 3 个月未续费），若直接按
-    // dailyPrice * diffDays 计算会得到数倍于原价的荒谬结果。这里把有效天数
-    // 收敛到 [0, cycleDays]：剩余价值永远不可能超过一整期续费价。
-    const effectiveDays = Math.max(0, Math.min(rawDiffDays, cycleDays));
+    // 支持提前续费 / 续费多年：当剩余天数超过单期付款周期时（如年付机器续费了两年），
+    // 剩余价值按实际剩余天数完整计算（日单价 * 剩余天数），不截断为单期周期上限。
+    const effectiveDays = Math.max(0, rawDiffDays);
 
     if (effectiveDays > 0) {
         valOrig = dailyPrice * effectiveDays;
