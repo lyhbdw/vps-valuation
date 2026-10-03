@@ -51,6 +51,10 @@ const els = {
     cycles: document.getElementsByName('cycle'),
     dueDate: document.getElementById('dueDate'),
     tradeDate: document.getElementById('tradeDate'),
+    dueDatePicker: document.getElementById('dueDatePicker'),
+    tradeDatePicker: document.getElementById('tradeDatePicker'),
+    dueDateCalendarBtn: document.getElementById('dueDateCalendarBtn'),
+    tradeDateCalendarBtn: document.getElementById('tradeDateCalendarBtn'),
     customRate: document.getElementById('customRate'),
     apiRateDisplay: document.getElementById('apiRateDisplay'),
     refreshBtn: document.getElementById('refreshRateBtn'),
@@ -83,8 +87,6 @@ window.addEventListener('DOMContentLoaded', () => {
         loadInputsFromCookie(); 
         initQuoteFields();
         initDates(); 
-        syncDateDisplay(els.dueDate);
-        syncDateDisplay(els.tradeDate);
         initRates(); 
         setupEventListeners();
         calculate(); 
@@ -106,18 +108,91 @@ function hideAppLoader() {
 function setupEventListeners() {
     const debouncedSave = debounce(saveInputsToCookie, 500);
 
-    [els.price, els.dueDate, els.tradeDate, els.customRate].forEach(el => el.addEventListener('input', () => {
-        if (el.type === 'date') syncDateDisplay(el);
+    [els.price, els.customRate].forEach(el => el.addEventListener('input', () => {
         calculate();
         debouncedSave();
     }));
 
-    [els.dueDate, els.tradeDate].forEach(el => el.addEventListener('change', () => {
-        syncDateDisplay(el);
-        calculate();
-        saveInputsToCookie();
-    }));
-    
+    const datePairs = [
+        { text: els.dueDate, picker: els.dueDatePicker, btn: els.dueDateCalendarBtn },
+        { text: els.tradeDate, picker: els.tradeDatePicker, btn: els.tradeDateCalendarBtn }
+    ];
+
+    datePairs.forEach(({ text, picker, btn }) => {
+        const openPicker = () => {
+            if (!picker) return;
+            const parsed = parseDateInput(text.value);
+            if (parsed) picker.value = parsed;
+            try {
+                if (typeof picker.showPicker === 'function') {
+                    picker.showPicker();
+                } else {
+                    picker.focus();
+                }
+            } catch (_) {
+                picker.focus();
+            }
+        };
+
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openPicker();
+            });
+        }
+
+        if (picker) {
+            picker.addEventListener('change', () => {
+                if (picker.value) {
+                    text.value = picker.value;
+                    text.classList.remove('input-invalid');
+                    calculate();
+                    saveInputsToCookie();
+                }
+            });
+        }
+
+        text.addEventListener('input', () => {
+            const val = text.value.trim();
+            const parsed = parseDateInput(val);
+            if (parsed) {
+                text.classList.remove('input-invalid');
+                if (picker) picker.value = parsed;
+            } else if (val.length >= 8) {
+                text.classList.add('input-invalid');
+            } else {
+                text.classList.remove('input-invalid');
+            }
+            calculate();
+            debouncedSave();
+        });
+
+        text.addEventListener('blur', () => {
+            const val = text.value.trim();
+            if (val === '') {
+                text.classList.remove('input-invalid');
+            } else {
+                const parsed = parseDateInput(val);
+                if (parsed) {
+                    text.value = parsed;
+                    text.classList.remove('input-invalid');
+                    if (picker) picker.value = parsed;
+                } else {
+                    text.classList.add('input-invalid');
+                }
+            }
+            calculate();
+            saveInputsToCookie();
+        });
+
+        text.addEventListener('keydown', (e) => {
+            if ((e.altKey && e.key === 'ArrowDown') || e.key === 'F4') {
+                e.preventDefault();
+                openPicker();
+            }
+        });
+    });
+
     els.cycles.forEach(radio => radio.addEventListener('change', () => {
         calculate();
         saveInputsToCookie();
@@ -151,39 +226,6 @@ function setupEventListeners() {
             saveInputsToCookie();
         });
     });
-
-    // Firefox：date input 改为 visibility:hidden，不接收点击 → 在 wrapper 上绑定点击来触发 showPicker()
-    // 非 Firefox：原生透明日历指示器在 webkit 上会自己响应点击，同时下面的 icon handler 作为后备
-    const openDatePicker = (input, preventDefault) => {
-        if (!input) return;
-        if (preventDefault) preventDefault.preventDefault();
-        try {
-            if (typeof input.showPicker === 'function') {
-                input.showPicker();
-            } else {
-                input.focus();
-            }
-        } catch (err) {
-            // showPicker 在部分浏览器/场景会抛错，退回复焦行为
-            input.focus();
-        }
-    };
-
-    if (document.documentElement.classList.contains('is-firefox')) {
-        document.querySelectorAll('.date-input-wrapper').forEach((wrapper) => {
-            wrapper.addEventListener('click', () => {
-                openDatePicker(wrapper.querySelector('input[type="date"]'), null);
-            });
-        });
-    } else {
-        // 非 Firefox：点击右侧自定义日历图标触发 picker
-        document.querySelectorAll('.date-input-wrapper .date-input-icon').forEach((icon) => {
-            icon.addEventListener('click', (e) => {
-                const input = icon.parentElement && icon.parentElement.querySelector('input[type="date"]');
-                openDatePicker(input, e);
-            });
-        });
-    }
 
     // 价格 / 汇率 输入校验：负数或非法时高亮红边
     [els.price, els.customRate].forEach(el => {
@@ -379,14 +421,8 @@ function resetGeneratedImage() {
 }
 
 function formatDateForDisplay(value) {
-    return value ? value.replace(/-/g, '/') : '--/--/--';
-}
-
-function syncDateDisplay(input) {
-    const wrapper = input && input.parentElement;
-    const display = wrapper && wrapper.querySelector('.date-display-value');
-    if (!display) return;
-    display.textContent = formatDateForDisplay(input.value);
+    const parsed = parseDateInput(value);
+    return parsed ? parsed.replace(/-/g, '/') : (value ? value.replace(/-/g, '/') : '--/--/--');
 }
 
 /*
@@ -402,26 +438,28 @@ function createExportRestorer(visit) {
 
 function prepareDateInputsForExport(node) {
     return createExportRestorer((addRestore) => {
-        node.querySelectorAll('input[type="date"]').forEach((input) => {
-            const wrapper = input.parentElement;
-            if (!wrapper) return;
-            const display = wrapper.querySelector('.date-display-value') || document.createElement('span');
-            const hadDisplay = wrapper.contains(display);
-            if (!hadDisplay) {
-                display.className = 'date-display-value';
-                wrapper.insertBefore(display, input.nextSibling);
+        node.querySelectorAll('.date-input-wrapper').forEach((wrapper) => {
+            const input = wrapper.querySelector('input.date-native-input');
+            const btn = wrapper.querySelector('.date-input-btn');
+            if (btn) {
+                btn.style.display = 'none';
+                addRestore(() => { btn.style.display = ''; });
             }
-            display.classList.add('date-display-export');
-            display.textContent = formatDateForDisplay(input.value);
-            // visibility:hidden 而非 display:none：保留 input 在文档流中的占位高度，
-            // 避免 wrapper 塌陷导致 position:absolute 的 display 层变为 0px 高度。
-            input.style.visibility = 'hidden';
+            if (input) {
+                const display = document.createElement('div');
+                display.className = 'date-display-export';
+                const cs = window.getComputedStyle(input);
+                display.style.paddingLeft = cs.paddingLeft;
+                display.style.paddingRight = cs.paddingRight;
+                display.textContent = formatDateForDisplay(input.value);
+                input.style.display = 'none';
+                wrapper.insertBefore(display, input);
 
-            addRestore(() => {
-                input.style.visibility = '';
-                display.classList.remove('date-display-export');
-                if (!hadDisplay) display.remove();
-            });
+                addRestore(() => {
+                    input.style.display = '';
+                    display.remove();
+                });
+            }
         });
     });
 }
@@ -566,8 +604,16 @@ function loadInputsFromCookie() {
             const data = JSON.parse(saved);
             if(data.price) els.price.value = data.price;
             if(data.currency) els.currency.value = data.currency;
-            if(data.dueDate) els.dueDate.value = data.dueDate;
-            if(data.tradeDate) els.tradeDate.value = data.tradeDate;
+            if(data.dueDate) {
+                els.dueDate.value = data.dueDate;
+                const parsed = parseDateInput(data.dueDate);
+                if (parsed && els.dueDatePicker) els.dueDatePicker.value = parsed;
+            }
+            if(data.tradeDate) {
+                els.tradeDate.value = data.tradeDate;
+                const parsed = parseDateInput(data.tradeDate);
+                if (parsed && els.tradeDatePicker) els.tradeDatePicker.value = parsed;
+            }
             if(data.customRate) els.customRate.value = data.customRate;
             if(data.quoteLastEdited === 'sale' || data.quoteLastEdited === 'premium') {
                 quoteLastEdited = data.quoteLastEdited;
@@ -741,17 +787,60 @@ function getNextBlackFriday(date) {
         : getBlackFriday(date.getFullYear() + 1);
 }
 
+function parseDateInput(value) {
+    if (typeof value !== 'string') return null;
+    const str = value.trim();
+    if (!str) return null;
+
+    let y, m, d;
+    const sepMatch = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+    if (sepMatch) {
+        y = parseInt(sepMatch[1], 10);
+        m = parseInt(sepMatch[2], 10);
+        d = parseInt(sepMatch[3], 10);
+    } else {
+        const compactMatch = str.match(/^(\d{4})(\d{2})(\d{2})$/);
+        if (compactMatch) {
+            y = parseInt(compactMatch[1], 10);
+            m = parseInt(compactMatch[2], 10);
+            d = parseInt(compactMatch[3], 10);
+        } else {
+            return null;
+        }
+    }
+
+    if (y < 1970 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31) return null;
+    const date = new Date(y, m - 1, d);
+    if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
+        return null;
+    }
+    const mm = String(m).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    return `${y}-${mm}-${dd}`;
+}
+
 function initDates() {
     const now = new Date();
-    els.tradeDate.value = formatDate(now);
-    syncDateDisplay(els.tradeDate);
-    if (els.dueDate.value) {
-        syncDateDisplay(els.dueDate);
-        return;
+    const todayStr = formatDate(now);
+    if (!els.tradeDate.value) {
+        els.tradeDate.value = todayStr;
     }
-    const targetDueDate = getNextBlackFriday(now);
-    els.dueDate.value = formatDate(targetDueDate);
-    syncDateDisplay(els.dueDate);
+    const tradeParsed = parseDateInput(els.tradeDate.value);
+    if (tradeParsed) {
+        els.tradeDate.value = tradeParsed;
+        if (els.tradeDatePicker) els.tradeDatePicker.value = tradeParsed;
+    }
+
+    if (!els.dueDate.value) {
+        const targetDueDate = getNextBlackFriday(now);
+        const targetStr = formatDate(targetDueDate);
+        els.dueDate.value = targetStr;
+    }
+    const dueParsed = parseDateInput(els.dueDate.value);
+    if (dueParsed) {
+        els.dueDate.value = dueParsed;
+        if (els.dueDatePicker) els.dueDatePicker.value = dueParsed;
+    }
 }
 
 function formatDate(date) {
@@ -782,8 +871,8 @@ function calculate() {
     const rateRaw = parseFloat(els.customRate.value);
     const price = Number.isFinite(priceRaw) && priceRaw >= 0 ? priceRaw : 0;
     const rate = Number.isFinite(rateRaw) && rateRaw > 0 ? rateRaw : 0;
-    const due = new Date(els.dueDate.value);
-    const trade = new Date(els.tradeDate.value);
+    const dueIso = parseDateInput(els.dueDate.value);
+    const tradeIso = parseDateInput(els.tradeDate.value);
 
     let cycleDays = 365;
     for (const radio of els.cycles) {
@@ -794,7 +883,7 @@ function calculate() {
     els.priceCNYPreview.textContent = `≈${totalCNY.toFixed(2)}元`;
 
     // 空 / 非法日期：清空结果区，给出占位提示
-    if (isNaN(due.getTime()) || isNaN(trade.getTime())) {
+    if (!dueIso || !tradeIso) {
         remainingValueCNY = 0;
         setFinalValueDisplay('0.00');
         els.originalCurrencyValue.textContent = '请填写到期日 / 交易日';
@@ -804,6 +893,9 @@ function calculate() {
         syncQuoteFields();
         return;
     }
+
+    const due = new Date(dueIso + 'T00:00:00');
+    const trade = new Date(tradeIso + 'T00:00:00');
 
     const diffTime = due - trade;
     const rawDiffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -821,8 +913,7 @@ function calculate() {
     }
 
     // 进度条语义：当前续费周期内的「剩余比例」。剩余天数如实展示（rawDiffDays），
-    // 但百分比必须收敛到 [0, 100]：剩余天数超过一个周期时（如月付机器已 3 个月
-    // 未续费），文案显示 1100% 会让进度条视觉溢出，这里统一显示为 100%。
+    // 但百分比必须收敛到 [0, 100]：避免进度条视觉溢出。
     let progressPct;
     let displayProgressPct;
     if (rawDiffDays <= 0) {
@@ -868,7 +959,10 @@ function copyResult() {
     const cycleText = (cycleRadio && CYCLE_LABELS[cycleRadio.value]) || "年付";
 
     // 日期统一用页面显示格式（斜线），与界面保持一致
-    const fmtDate = (v) => (v ? v.replace(/-/g, '/') : '未设置');
+    const fmtDate = (v) => {
+        const parsed = parseDateInput(v);
+        return parsed ? parsed.replace(/-/g, '/') : (v || '未设置');
+    };
     const cnyPrice = (parseFloat(price) * parseFloat(rate)).toFixed(2);
 
     const lines = [
@@ -879,7 +973,7 @@ function copyResult() {
     ];
 
     // 到期日未填时不输出“--天（ 到期）”这类无意义内容
-    if (dueDate) {
+    if (dueDate && parseDateInput(dueDate)) {
         lines.push(`- ⏳ 剩余天数：${days} 天（${fmtDate(dueDate)} 到期）`);
     } else {
         lines.push(`- ⏳ 剩余天数：未设置到期日`);
