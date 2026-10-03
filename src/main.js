@@ -162,6 +162,20 @@ function setupEventListeners() {
             debouncedSave();
         });
 
+        text.addEventListener('paste', () => {
+            setTimeout(() => {
+                const val = text.value.trim();
+                const parsed = parseDateInput(val);
+                if (parsed) {
+                    text.value = parsed;
+                    text.classList.remove('input-invalid');
+                    if (picker) picker.value = parsed;
+                    calculate();
+                    debouncedSave();
+                }
+            }, 0);
+        });
+
         text.addEventListener('blur', () => {
             const val = text.value.trim();
             if (val === '') {
@@ -237,6 +251,8 @@ function setupEventListeners() {
         if (!modal.el.classList.contains('hidden')) closeImageModal();
         if (els.rateLimitTip.classList.contains('show')) hideRateLimitTip();
     });
+
+    bindActionButtons();
 }
 
 function validateNumberInput(el) {
@@ -262,7 +278,9 @@ function parseQuoteValue(value) {
 }
 
 function formatMoney(value) {
-    return Number.isFinite(value) ? value.toFixed(2) : '';
+    if (!Number.isFinite(value)) return '';
+    const rounded = Math.round(value * 100) / 100;
+    return (Object.is(rounded, -0) ? 0 : rounded).toFixed(2);
 }
 
 function updatePremiumTone(value) {
@@ -664,7 +682,7 @@ async function manualRefreshRate(isUserClick = true) {
 
     const limitKey = "vps_refresh_limit";
     const rawLimit = getCookie(limitKey);
-    let limitData = { count: 0, resetTime: Date.now() + 12*3600*1000 };
+    let limitData = { count: 0, resetTime: Date.now() + RATE_LIMIT_WINDOW_HOURS*3600*1000 };
 
     if (rawLimit) {
         try {
@@ -1192,11 +1210,5 @@ function bindActionButtons() {
         imgBtn.addEventListener('pointerenter', prefetch, { once: true });
         imgBtn.addEventListener('focus', prefetch, { once: true });
     }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindActionButtons);
-} else {
-    bindActionButtons();
 }
 
