@@ -58,6 +58,9 @@ const els = {
     finalValue: document.getElementById('finalValue'),
     originalCurrencyValue: document.getElementById('originalCurrencyValue'),
     amountCopyTip: document.getElementById('amountCopyTip'),
+    amountCopyTipText: document.getElementById('amountCopyTipText'),
+    copyAmountTrigger: document.getElementById('copyAmountTrigger'),
+    dailyPricePreview: document.getElementById('dailyPricePreview'),
     premiumInput: document.getElementById('premiumInput'),
     salePriceInput: document.getElementById('salePriceInput'),
     daysRemaining: document.getElementById('daysRemaining'),
@@ -222,6 +225,14 @@ function setupEventListeners() {
         e.preventDefault();
         copyFinalValueAmount();
     });
+    if (els.copyAmountTrigger) {
+        els.copyAmountTrigger.addEventListener('click', copyFinalValueAmount);
+        els.copyAmountTrigger.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            copyFinalValueAmount();
+        });
+    }
 
     [els.premiumInput, els.salePriceInput].forEach(el => {
         el.addEventListener('input', () => {
@@ -895,6 +906,22 @@ function calculate() {
     const totalCNY = price * rate;
     els.priceCNYPreview.textContent = `≈${totalCNY.toFixed(2)}元`;
 
+    const dailyPrice = cycleDays > 0 ? price / cycleDays : 0;
+    const dailyPriceCNY = cycleDays > 0 ? totalCNY / cycleDays : 0;
+
+    if (els.dailyPricePreview) {
+        if (price > 0 && cycleDays > 0) {
+            const sym = currencySymbols[els.currency.value] || els.currency.value;
+            if (els.currency.value === 'CNY') {
+                els.dailyPricePreview.textContent = `日均 ≈ ¥${dailyPriceCNY.toFixed(2)}/天`;
+            } else {
+                els.dailyPricePreview.textContent = `日均 ≈ ¥${dailyPriceCNY.toFixed(2)}/天（${sym}${dailyPrice.toFixed(2)}）`;
+            }
+        } else {
+            els.dailyPricePreview.textContent = `日均 ≈ ¥0.00/天`;
+        }
+    }
+
     // 空 / 非法日期：清空结果区，给出占位提示
     if (!dueIso || !tradeIso) {
         remainingValueCNY = 0;
@@ -912,7 +939,6 @@ function calculate() {
 
     const diffTime = due - trade;
     const rawDiffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const dailyPrice = cycleDays > 0 ? price / cycleDays : 0;
 
     let valOrig = 0, valCNY = 0;
 
@@ -985,6 +1011,10 @@ function copyResult() {
         `- 💰 续费价格：${price} ${currency}/${cycleText}（约 ${cnyPrice} 元）`
     ];
 
+    const cycleDaysVal = parseInt(cycleRadio?.value || "365", 10);
+    const dailyCNYText = cycleDaysVal > 0 ? ((parseFloat(price) * parseFloat(rate)) / cycleDaysVal).toFixed(2) : "0.00";
+    lines.push(`- ⚡ 日均成本：约 ${dailyCNYText} 元/天`);
+
     // 到期日未填时不输出“--天（ 到期）”这类无意义内容
     if (dueDate && parseDateInput(dueDate)) {
         lines.push(`- ⏳ 剩余天数：${days} 天（${fmtDate(dueDate)} 到期）`);
@@ -1035,10 +1065,14 @@ function copyFinalValueAmount() {
 
 function flashAmountCopyTip() {
     if (!els.amountCopyTip) return;
-    els.amountCopyTip.classList.add('show');
+    const textEl = document.getElementById('amountCopyTipText');
+    const originalText = textEl ? textEl.textContent : '点击复制';
+    if (textEl) textEl.textContent = '已复制 ✓';
+    els.amountCopyTip.classList.add('amount-copied');
     clearTimeout(flashAmountCopyTip._t);
     flashAmountCopyTip._t = setTimeout(() => {
-        els.amountCopyTip.classList.remove('show');
+        if (textEl) textEl.textContent = originalText;
+        els.amountCopyTip.classList.remove('amount-copied');
     }, 1500);
 }
 

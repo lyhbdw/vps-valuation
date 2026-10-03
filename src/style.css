@@ -298,9 +298,10 @@ html.dark .date-native-input:focus {
 
 .date-input-btn {
     position: absolute;
-    right: 0.625rem;
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -308,13 +309,27 @@ html.dark .date-native-input:focus {
     z-index: 2;
     background: transparent;
     border: none;
-    padding: 0.25rem;
-    border-radius: 4px;
+    padding: 0;
+    border-radius: 0 6px 6px 0;
+    color: #78716c;
+    transition: color 0.15s ease;
+}
+
+html:not(.dark) .date-input-btn:hover {
+    color: #2c2825;
+}
+
+html.dark .date-input-btn {
+    color: #a8a29e;
+}
+
+html.dark .date-input-btn:hover {
+    color: #ede8e2;
 }
 
 .date-input-btn:focus-visible {
     outline: 2px solid currentColor;
-    outline-offset: 1px;
+    outline-offset: -2px;
 }
 
 /* 导出专用显示层 */
@@ -473,25 +488,40 @@ html.dark #finalValue:hover {
 
 .amount-copy-tip {
     font-family: 'Geist', sans-serif;
-    opacity: 0;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    transform: translateY(2px);
-    pointer-events: none;
+    opacity: 0.75;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
 }
 
-.amount-copy-tip.show {
+.amount-copy-tip:hover {
     opacity: 1;
-    transform: translateY(0);
 }
 
 html:not(.dark) .amount-copy-tip {
-    background-color: #2c2825;
-    color: #ffffff;
+    color: #78716c;
+    background-color: rgba(44, 40, 37, 0.05);
+}
+
+html:not(.dark) .amount-copy-tip:hover {
+    color: #2c2825;
+    background-color: rgba(44, 40, 37, 0.08);
 }
 
 html.dark .amount-copy-tip {
-    background-color: #ede8e2;
-    color: #1c1b19;
+    color: #a8a29e;
+    background-color: rgba(237, 232, 226, 0.07);
+}
+
+html.dark .amount-copy-tip:hover {
+    color: #ede8e2;
+    background-color: rgba(237, 232, 226, 0.12);
+}
+
+.amount-copy-tip.amount-copied {
+    opacity: 1 !important;
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
 }
 
 /* ============ Progress Bar (Warm Tone Track) ============ */
