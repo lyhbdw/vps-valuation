@@ -1,6 +1,6 @@
 /*
- * Vercel Bento Grid Design System
- * VPS 剩余价值计算器
+ * Vercel Bento Grid Design System - VPS 剩余价值计算器
+ * 使用 CSS 变量统一亮/暗色规范，消除重复选择器
  */
 
 /* 精简 Reset */
@@ -35,6 +35,12 @@ body {
     tab-size: 4;
     -webkit-tap-highlight-color: transparent;
     transition: background-color 0.2s ease, color 0.2s ease;
+    background-color: var(--bg-page);
+    background-image:
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center top;
 }
 
 a {
@@ -101,132 +107,185 @@ html.dark input::placeholder {
 
 @tailwind utilities;
 
-/* ============ Warm Paper / Charcoal Eye-Friendly Background ============ */
-body {
-    background-color: #f7f5f0;
-    background-image:
-        linear-gradient(to right, rgba(44, 40, 37, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(44, 40, 37, 0.025) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: center top;
+/* ============ 主题设计系统变量 (Design Tokens) ============ */
+:root {
+    --bg-page: #f7f5f0;
+    --bg-grid: rgba(44, 40, 37, 0.025);
+    --card-bg: #ffffff;
+    --card-border: rgba(44, 40, 37, 0.08);
+    --card-shadow: 0 0 0 1px rgba(44, 40, 37, 0.06), 0 4px 16px rgba(44, 40, 37, 0.04);
+    --card-export-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
+    --section-form-bg: #f4f1ea;
+    --section-form-border: rgba(44, 40, 37, 0.07);
+    --tile-bg: #ffffff;
+    --tile-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
+
+    --input-bg: #ffffff;
+    --input-border: #ded9cf;
+    --input-color: #2c2825;
+    --input-focus-border: #78716c;
+    --input-focus-ring: rgba(120, 113, 108, 0.18);
+
+    --cycle-bg: #ffffff;
+    --cycle-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
+    --cycle-color: #6b655f;
+    --cycle-hover-bg: #ede8df;
+    --cycle-hover-color: #2c2825;
+    --cycle-checked-bg: #2c2825;
+    --cycle-checked-color: #ffffff;
+    --cycle-checked-shadow: 0 0 0 1px #2c2825, 0 1px 2px rgba(44, 40, 37, 0.1);
+
+    --custom-rate-color: #2c2825;
+    --custom-rate-border: #a8a29e;
+    --custom-rate-focus: #2c2825;
+
+    --btn-calendar-color: #78716c;
+    --btn-calendar-hover: #2c2825;
+
+    --progress-track: #e6e2d8;
+    --progress-bar: #2c2825;
+
+    --action-bar-bg: #ede8df;
+    --action-bar-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
+    --btn-copy-color: #57534e;
+    --btn-copy-hover-bg: #ffffff;
+    --btn-copy-hover-color: #2c2825;
+    --btn-img-bg: #2c2825;
+    --btn-img-color: #ffffff;
+    --btn-img-hover-bg: #1c1917;
+
+    --toast-bg: #2c2825;
+    --toast-color: #ffffff;
+
+    --toggle-bg: #ded9ce;
+    --toggle-shadow: inset 0 0 0 1px rgba(44, 40, 37, 0.08);
+
+    --tip-bg: rgba(44, 40, 37, 0.05);
+    --tip-color: #78716c;
+    --tip-hover-bg: rgba(44, 40, 37, 0.08);
+    --tip-hover-color: #2c2825;
+
+    --quote-label-color: #71717a;
+    --quote-label-focus-color: #2c2825;
+
+    --final-value-color: #2c2825;
 }
 
-html.dark body {
-    background-color: #151413;
-    background-image:
-        linear-gradient(to right, rgba(237, 232, 226, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(237, 232, 226, 0.025) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: center top;
+html.dark {
+    --bg-page: #151413;
+    --bg-grid: rgba(237, 232, 226, 0.025);
+    --card-bg: #1c1b19;
+    --card-border: rgba(237, 232, 226, 0.08);
+    --card-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08), 0 6px 20px rgba(0, 0, 0, 0.35);
+    --card-export-shadow: 0 0 0 1px rgba(237, 232, 226, 0.1);
+    --section-form-bg: #171614;
+    --section-form-border: rgba(237, 232, 226, 0.07);
+    --tile-bg: #23211f;
+    --tile-shadow: 0 0 0 1px rgba(237, 232, 226, 0.06);
+
+    --input-bg: #191816;
+    --input-border: #383531;
+    --input-color: #ede8e2;
+    --input-focus-border: #a8a29e;
+    --input-focus-ring: rgba(237, 232, 226, 0.14);
+
+    --cycle-bg: #191816;
+    --cycle-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08);
+    --cycle-color: #9c958d;
+    --cycle-hover-bg: #2b2825;
+    --cycle-hover-color: #ede8e2;
+    --cycle-checked-bg: #ede8e2;
+    --cycle-checked-color: #1c1b19;
+    --cycle-checked-shadow: 0 0 0 1px #ede8e2, 0 1px 2px rgba(0, 0, 0, 0.3);
+
+    --custom-rate-color: #ede8e2;
+    --custom-rate-border: #66615b;
+    --custom-rate-focus: #ede8e2;
+
+    --btn-calendar-color: #a8a29e;
+    --btn-calendar-hover: #ede8e2;
+
+    --progress-track: #33302c;
+    --progress-bar: #d8d2c9;
+
+    --action-bar-bg: #171614;
+    --action-bar-shadow: 0 0 0 1px rgba(237, 232, 226, 0.07);
+    --btn-copy-color: #a8a29e;
+    --btn-copy-hover-bg: #282623;
+    --btn-copy-hover-color: #ede8e2;
+    --btn-img-bg: #ede8e2;
+    --btn-img-color: #1c1b19;
+    --btn-img-hover-bg: #ded8cf;
+
+    --toast-bg: #ede8e2;
+    --toast-color: #1c1b19;
+
+    --toggle-bg: #2e2b28;
+    --toggle-shadow: inset 0 0 0 1px rgba(237, 232, 226, 0.1);
+
+    --tip-bg: rgba(237, 232, 226, 0.07);
+    --tip-color: #a8a29e;
+    --tip-hover-bg: rgba(237, 232, 226, 0.12);
+    --tip-hover-color: #ede8e2;
+
+    --quote-label-color: #a1a1aa;
+    --quote-label-focus-color: #ede8e2;
+
+    --final-value-color: #ede8e2;
 }
 
-/* ============ Main Bento Card (Warm Rounded) ============ */
+/* ============ Main Bento Card ============ */
 #mainCard {
     border-radius: 16px;
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    box-shadow: var(--card-shadow);
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-html:not(.dark) #mainCard {
-    background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.06), 0 4px 16px rgba(44, 40, 37, 0.04);
-    border-color: rgba(44, 40, 37, 0.08);
+#mainCard > section:first-of-type {
+    background-color: var(--section-form-bg);
+    border-color: var(--section-form-border);
 }
 
-html.dark #mainCard {
-    background-color: #1c1b19;
-    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08), 0 6px 20px rgba(0, 0, 0, 0.35);
-    border-color: rgba(237, 232, 226, 0.08);
+#resultCard {
+    background-color: var(--card-bg);
 }
 
-/* 左右分区对比 */
-html:not(.dark) #mainCard > section:first-of-type {
-    background-color: #f4f1ea;
-    border-color: rgba(44, 40, 37, 0.07);
-}
-
-html.dark #mainCard > section:first-of-type {
-    background-color: #171614;
-    border-color: rgba(237, 232, 226, 0.07);
-}
-
-html:not(.dark) #resultCard {
-    background-color: #ffffff;
-}
-
-html.dark #resultCard {
-    background-color: #1c1b19;
-}
-
-/* ============ Bento Tiles (便当盒模块) ============ */
+/* ============ Bento Tiles ============ */
 .bento-tile {
     border-radius: 10px;
+    background-color: var(--tile-bg);
+    box-shadow: var(--tile-shadow);
     transition: all 0.15s ease;
 }
 
-html:not(.dark) .bento-tile {
-    background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
-}
-
-html.dark .bento-tile {
-    background-color: #23211f;
-    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.06);
-}
-
-/* ============ Form Controls ============ */
+/* ============ Form Controls (统一输入框规范) ============ */
 .symbol-display {
     font-family: 'Geist Mono', monospace;
     font-variant-numeric: tabular-nums;
 }
 
+#price,
+#currency,
+.date-native-input,
+.quote-input {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-color);
+}
+
+#price:focus,
+#currency:focus,
+.date-native-input:focus,
+.quote-input:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 2px var(--input-focus-ring);
+}
+
 #price {
     font-family: 'Geist Mono', monospace;
     font-variant-numeric: tabular-nums;
-}
-
-html:not(.dark) #price {
-    background-color: #ffffff;
-    border-color: #ded9cf;
-    color: #2c2825;
-}
-
-html:not(.dark) #price:focus {
-    border-color: #78716c;
-    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
-}
-
-html.dark #price {
-    background-color: #191816;
-    border-color: #383531;
-    color: #ede8e2;
-}
-
-html.dark #price:focus {
-    border-color: #a8a29e;
-    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
-}
-
-/* Currency Select */
-html:not(.dark) #currency {
-    background-color: #ffffff;
-    border-color: #ded9cf;
-    color: #2c2825;
-}
-
-html:not(.dark) #currency:focus {
-    border-color: #78716c;
-    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
-}
-
-html.dark #currency {
-    background-color: #191816;
-    border-color: #383531;
-    color: #ede8e2;
-}
-
-html.dark #currency:focus {
-    border-color: #a8a29e;
-    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
 }
 
 /* Date Inputs */
@@ -255,29 +314,6 @@ html.dark #currency:focus {
     }
 }
 
-html:not(.dark) .date-native-input {
-    background-color: #ffffff;
-    border-color: #ded9cf;
-    color: #2c2825;
-}
-
-html:not(.dark) .date-native-input:focus {
-    border-color: #78716c;
-    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
-}
-
-html.dark .date-native-input {
-    background-color: #191816;
-    border-color: #383531;
-    color: #ede8e2;
-}
-
-html.dark .date-native-input:focus {
-    border-color: #a8a29e;
-    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
-}
-
-/* Date wrapper display */
 .date-input-wrapper {
     position: relative;
     min-width: 0;
@@ -311,20 +347,12 @@ html.dark .date-native-input:focus {
     border: none;
     padding: 0;
     border-radius: 0 6px 6px 0;
-    color: #78716c;
+    color: var(--btn-calendar-color);
     transition: color 0.15s ease;
 }
 
-html:not(.dark) .date-input-btn:hover {
-    color: #2c2825;
-}
-
-html.dark .date-input-btn {
-    color: #a8a29e;
-}
-
-html.dark .date-input-btn:hover {
-    color: #ede8e2;
+.date-input-btn:hover {
+    color: var(--btn-calendar-hover);
 }
 
 .date-input-btn:focus-visible {
@@ -341,18 +369,12 @@ html.dark .date-input-btn:hover {
     padding-left: 0.75rem;
     padding-right: 2.5rem;
     border-radius: 6px;
-    border: 1px solid #ded9cf;
-    background-color: #ffffff;
-    color: #2c2825;
+    border: 1px solid var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--input-color);
     font-family: 'Geist Mono', monospace;
     font-size: 0.8125rem;
     font-weight: 500;
-}
-
-html.dark .date-display-export {
-    border-color: #383531;
-    background-color: #191816;
-    color: #ede8e2;
 }
 
 @media (min-width: 768px) {
@@ -372,6 +394,9 @@ html.dark .date-display-export {
     font-weight: 500;
     transition: all 0.15s ease;
     user-select: none;
+    background-color: var(--cycle-bg);
+    box-shadow: var(--cycle-shadow);
+    color: var(--cycle-color);
 }
 
 @media (min-width: 768px) {
@@ -381,43 +406,16 @@ html.dark .date-display-export {
     }
 }
 
-html:not(.dark) .cycle-option {
-    background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
-    color: #6b655f;
+.cycle-option:hover {
+    background-color: var(--cycle-hover-bg);
+    color: var(--cycle-hover-color);
 }
 
-html:not(.dark) .cycle-option:hover {
-    background-color: #ede8df;
-    color: #2c2825;
-}
-
-html.dark .cycle-option {
-    background-color: #191816;
-    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.08);
-    color: #9c958d;
-}
-
-html.dark .cycle-option:hover {
-    background-color: #2b2825;
-    color: #ede8e2;
-}
-
-/* 选中态：温润深炭 / 象牙暖白，柔和高对比但不刺眼 */
 .cycle-radio:checked + div {
     font-weight: 600 !important;
-}
-
-html:not(.dark) .cycle-radio:checked + div {
-    background-color: #2c2825 !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 0 1px #2c2825, 0 1px 2px rgba(44, 40, 37, 0.1) !important;
-}
-
-html.dark .cycle-radio:checked + div {
-    background-color: #ede8e2 !important;
-    color: #1c1b19 !important;
-    box-shadow: 0 0 0 1px #ede8e2, 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    background-color: var(--cycle-checked-bg) !important;
+    color: var(--cycle-checked-color) !important;
+    box-shadow: var(--cycle-checked-shadow) !important;
 }
 
 #mainCard.exporting .cycle-radio:checked + div {
@@ -432,24 +430,12 @@ html.dark .cycle-radio:checked + div {
 #customRate {
     font-family: 'Geist Mono', monospace;
     font-variant-numeric: tabular-nums;
+    color: var(--custom-rate-color);
+    border-color: var(--custom-rate-border);
 }
 
-html:not(.dark) #customRate {
-    color: #2c2825;
-    border-color: #a8a29e;
-}
-
-html:not(.dark) #customRate:focus {
-    border-color: #2c2825;
-}
-
-html.dark #customRate {
-    color: #ede8e2;
-    border-color: #66615b;
-}
-
-html.dark #customRate:focus {
-    border-color: #ede8e2;
+#customRate:focus {
+    border-color: var(--custom-rate-focus);
 }
 
 /* ============ 剩余价值大数字 ============ */
@@ -462,25 +448,13 @@ html.dark #customRate:focus {
     padding: 0 4px;
     margin: 0 -4px;
     transition: color 0.15s ease, opacity 0.15s ease;
+    color: var(--final-value-color);
 }
 
-html:not(.dark) #finalValue {
-    color: #2c2825;
+#finalValue:hover {
+    opacity: 0.85;
 }
 
-html:not(.dark) #finalValue:hover {
-    opacity: 0.82;
-}
-
-html.dark #finalValue {
-    color: #ede8e2;
-}
-
-html.dark #finalValue:hover {
-    opacity: 0.88;
-}
-
-/* 原币种与复制提示 */
 #originalCurrencyValue {
     font-family: 'Geist Mono', monospace;
     font-variant-numeric: tabular-nums;
@@ -491,30 +465,14 @@ html.dark #finalValue:hover {
     opacity: 0.75;
     transition: all 0.15s ease;
     border: 1px solid transparent;
+    color: var(--tip-color);
+    background-color: var(--tip-bg);
 }
 
 .amount-copy-tip:hover {
     opacity: 1;
-}
-
-html:not(.dark) .amount-copy-tip {
-    color: #78716c;
-    background-color: rgba(44, 40, 37, 0.05);
-}
-
-html:not(.dark) .amount-copy-tip:hover {
-    color: #2c2825;
-    background-color: rgba(44, 40, 37, 0.08);
-}
-
-html.dark .amount-copy-tip {
-    color: #a8a29e;
-    background-color: rgba(237, 232, 226, 0.07);
-}
-
-html.dark .amount-copy-tip:hover {
-    color: #ede8e2;
-    background-color: rgba(237, 232, 226, 0.12);
+    color: var(--tip-hover-color);
+    background-color: var(--tip-hover-bg);
 }
 
 .amount-copy-tip.amount-copied {
@@ -524,33 +482,19 @@ html.dark .amount-copy-tip:hover {
     box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
 }
 
-/* ============ Progress Bar (Warm Tone Track) ============ */
+/* ============ Progress Bar ============ */
 .progress-container {
     height: 6px;
     border-radius: 9999px;
     overflow: hidden;
-}
-
-html:not(.dark) .progress-container {
-    background-color: #e6e2d8;
-}
-
-html.dark .progress-container {
-    background-color: #33302c;
+    background-color: var(--progress-track);
 }
 
 .progress-fill {
     height: 100%;
     border-radius: 9999px;
     transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-html:not(.dark) .progress-fill {
-    background-color: #2c2825;
-}
-
-html.dark .progress-fill {
-    background-color: #d8d2c9;
+    background-color: var(--progress-bar);
 }
 
 #daysRemaining,
@@ -569,20 +513,12 @@ html.dark .progress-fill {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #71717a;
+    color: var(--quote-label-color);
     transition: color 0.15s ease;
 }
 
-html.dark .quote-label {
-    color: #a1a1aa;
-}
-
 .quote-field:focus-within .quote-label {
-    color: #2c2825;
-}
-
-html.dark .quote-field:focus-within .quote-label {
-    color: #ede8e2;
+    color: var(--quote-label-focus-color);
 }
 
 .quote-input {
@@ -601,29 +537,7 @@ html.dark .quote-field:focus-within .quote-label {
     transition: all 0.15s ease;
 }
 
-html:not(.dark) .quote-input {
-    background-color: #ffffff;
-    border-color: #ded9cf;
-    color: #2c2825;
-}
-
-html:not(.dark) .quote-input:focus {
-    border-color: #78716c;
-    box-shadow: 0 0 0 2px rgba(120, 113, 108, 0.18);
-}
-
-html.dark .quote-input {
-    background-color: #191816;
-    border-color: #383531;
-    color: #ede8e2;
-}
-
-html.dark .quote-input:focus {
-    border-color: #a8a29e;
-    box-shadow: 0 0 0 2px rgba(237, 232, 226, 0.14);
-}
-
-/* 溢价状态高亮：极简克制 */
+/* 溢价状态高亮 */
 .quote-panel .quote-input.premium-positive {
     color: #dc2626 !important; /* 红：溢价 */
 }
@@ -642,12 +556,11 @@ html.dark .quote-panel .quote-input.premium-negative {
     color: #78716c !important;
 }
 
-/* 输入框非法状态（负数 / 非数字） */
+/* 输入框非法状态 */
 .input-invalid {
     border-color: #dc2626 !important;
     box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.3) !important;
 }
-
 html.dark .input-invalid {
     border-color: #f87171 !important;
     box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.3) !important;
@@ -662,16 +575,8 @@ html.dark .input-invalid {
     padding: 3px;
     gap: 4px;
     transition: all 0.2s ease;
-}
-
-html:not(.dark) .action-bar {
-    background-color: #ede8df;
-    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.05);
-}
-
-html.dark .action-bar {
-    background-color: #171614;
-    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.07);
+    background-color: var(--action-bar-bg);
+    box-shadow: var(--action-bar-shadow);
 }
 
 .action-btn {
@@ -690,47 +595,25 @@ html.dark .action-bar {
     user-select: none;
 }
 
-/* 次要按钮：复制文本 */
-html:not(.dark) #copyBtn {
+#copyBtn {
     background-color: transparent;
-    color: #57534e;
+    color: var(--btn-copy-color);
 }
 
-html:not(.dark) #copyBtn:hover {
-    background-color: #ffffff;
-    color: #2c2825;
+#copyBtn:hover {
+    background-color: var(--btn-copy-hover-bg);
+    color: var(--btn-copy-hover-color);
     box-shadow: 0 1px 2px rgba(44, 40, 37, 0.05);
 }
 
-html.dark #copyBtn {
-    background-color: transparent;
-    color: #a8a29e;
-}
-
-html.dark #copyBtn:hover {
-    background-color: #282623;
-    color: #ede8e2;
-}
-
-/* 主要按钮：生成图片 */
-html:not(.dark) #imgBtn {
-    background-color: #2c2825;
-    color: #ffffff;
+#imgBtn {
+    background-color: var(--btn-img-bg);
+    color: var(--btn-img-color);
     box-shadow: 0 1px 2px rgba(44, 40, 37, 0.12);
 }
 
-html:not(.dark) #imgBtn:hover {
-    background-color: #1c1917;
-}
-
-html.dark #imgBtn {
-    background-color: #ede8e2;
-    color: #1c1b19;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-html.dark #imgBtn:hover {
-    background-color: #ded8cf;
+#imgBtn:hover {
+    background-color: var(--btn-img-hover-bg);
 }
 
 .btn-copied {
@@ -746,21 +629,13 @@ html.dark #imgBtn:hover {
     opacity: 0;
     transform: translate(-50%, 8px);
     transition: opacity 0.2s ease, transform 0.2s ease;
+    background-color: var(--toast-bg);
+    color: var(--toast-color);
 }
 
 #toast.show {
     opacity: 1;
     transform: translate(-50%, 0);
-}
-
-html:not(.dark) #toast {
-    background-color: #2c2825;
-    color: #ffffff;
-}
-
-html.dark #toast {
-    background-color: #ede8e2;
-    color: #1c1b19;
 }
 
 /* 频率限制气泡 */
@@ -777,21 +652,13 @@ html.dark #toast {
     transition: opacity 0.15s ease, transform 0.15s ease;
     pointer-events: none;
     z-index: 30;
+    background-color: var(--toast-bg);
+    color: var(--toast-color);
 }
 
 .rate-limit-tip.show {
     opacity: 1;
     transform: translateY(0);
-}
-
-html:not(.dark) .rate-limit-tip {
-    background-color: #2c2825;
-    color: #ffffff;
-}
-
-html.dark .rate-limit-tip {
-    background-color: #ede8e2;
-    color: #1c1b19;
 }
 
 /* 主题切换开关 */
@@ -805,16 +672,8 @@ html.dark .rate-limit-tip {
     border-radius: 9999px;
     cursor: pointer;
     transition: background-color 0.2s ease;
-}
-
-html:not(.dark) #themeToggle {
-    background-color: #ded9ce;
-    box-shadow: inset 0 0 0 1px rgba(44, 40, 37, 0.08);
-}
-
-html.dark #themeToggle {
-    background-color: #2e2b28;
-    box-shadow: inset 0 0 0 1px rgba(237, 232, 226, 0.1);
+    background-color: var(--toggle-bg);
+    box-shadow: var(--toggle-shadow);
 }
 
 #themeToggleKnob {
@@ -837,21 +696,13 @@ html:not(.dark) #themeToggleKnob.translate-x-1 {
     transform: translateX(0) !important;
 }
 
-/* ============ 图片导出专用样式 (Warm Export) ============ */
+/* ============ 图片导出专用样式 ============ */
 #captureRoot.exporting {
     padding: 24px 20px 20px;
-    background-color: #f7f5f0;
+    background-color: var(--bg-page);
     background-image:
-        linear-gradient(to right, rgba(44, 40, 37, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(44, 40, 37, 0.025) 1px, transparent 1px);
-    background-size: 24px 24px;
-}
-
-html.dark #captureRoot.exporting {
-    background-color: #151413;
-    background-image:
-        linear-gradient(to right, rgba(237, 232, 226, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(237, 232, 226, 0.025) 1px, transparent 1px);
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
     background-size: 24px 24px;
 }
 
@@ -859,16 +710,8 @@ html.dark #captureRoot.exporting {
     transition: none !important;
     position: relative;
     z-index: 1;
-}
-
-html:not(.dark) #mainCard.exporting {
-    background-color: #ffffff;
-    box-shadow: 0 0 0 1px rgba(44, 40, 37, 0.08);
-}
-
-html.dark #mainCard.exporting {
-    background-color: #1c1b19;
-    box-shadow: 0 0 0 1px rgba(237, 232, 226, 0.1);
+    background-color: var(--card-bg);
+    box-shadow: var(--card-export-shadow);
 }
 
 #mainCard.exporting #btnContainer,

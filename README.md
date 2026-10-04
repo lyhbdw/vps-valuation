@@ -79,10 +79,13 @@ npx wrangler deploy
 ```
 ├── index.html          # 页面结构（Bento Grid 布局）
 ├── src/
-│   ├── main.js         # 计算逻辑、汇率、主题、图片导出
-│   ├── style.css       # Vercel 风格设计系统
-│   └── worker.js       # Cloudflare Workers 入口
-├── scripts/postbuild.mjs  # HTML 压缩
+│   ├── main.js         # 应用装配、事件绑定与交互编排
+│   ├── calculator.js   # 核心剩余价值、日均摊算法与日期推导（纯函数）
+│   ├── rates.js        # 实时汇率管理（带 TTL 缓存、频控与内置基准兜底）
+│   ├── exportImage.js  # 分享图片导出（html-to-image 跨端适配与 Canvas 阴影补偿）
+│   ├── storage.js      # 本地持久化抽象（带 TTL 过期机制）
+│   └── style.css       # Vercel Bento Grid 设计系统（CSS 变量规范化）
+├── scripts/postbuild.mjs  # HTML 生产产物压缩
 ├── vite.config.js      # Vite 配置
 └── tailwind.config.js  # Tailwind 配置
 ```
